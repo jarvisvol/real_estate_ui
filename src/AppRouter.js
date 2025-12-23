@@ -80,36 +80,42 @@ class AppRouter extends Component {
               </PublicRoute>
             } 
           />
-          <Route 
-            path="/properties" 
-            element={
-              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Properties />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/about" 
-            element={
-              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <About />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/contact" 
-            element={
-              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Contact />
-              </PublicRoute>
-            } 
-          />
           <Route path="/" element={<Layout />}>
             <Route 
               index 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <HomePage />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
+          <Route path="/about" element={<Layout />}>
+            <Route 
+              index 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <About />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
+          <Route path="/contact" element={<Layout />}>
+            <Route 
+              index 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <Contact />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
+          <Route path="/properties" element={<Layout />}>
+            <Route 
+              index 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <Properties />
                 </ProtectedRoute>
               } 
             />

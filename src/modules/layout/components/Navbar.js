@@ -26,13 +26,13 @@ const Navbar = () => {
                         <Link to="/" className={isActive('/')}>
                             Home
                         </Link>
-                        <Link to="/invest" className={isActive('/invest')}>
+                        <Link to="/properties" className={isActive('/properties')}>
                             Properties
                         </Link>
-                        <Link to="/portfolio" className={isActive('/portfolio')}>
+                        <Link to="/about" className={isActive('/about')}>
                             About
                         </Link>
-                        <Link to="/profile" className={isActive('/profile')}>
+                        <Link to="/contact" className={isActive('/contact')}>
                             Contact
                         </Link>
                     </nav>
@@ -56,17 +56,17 @@ const Navbar = () => {
                         <i className="fas fa-home text-lg"></i>
                         <span className="text-xs mt-1">Home</span>
                     </Link>
-                    <Link to="/invest" className={`flex flex-col items-center justify-center py-3 ${isActive('/invest') ? 'text-blue-600' : 'text-gray-600'}`}>
+                    <Link to="/properties" className={`flex flex-col items-center justify-center py-3 ${isActive('/properties') ? 'text-blue-600' : 'text-gray-600'}`}>
                         <i className="fas fa-chart-pie text-lg"></i>
-                        <span className="text-xs mt-1">Invest</span>
+                        <span className="text-xs mt-1">Properties</span>
                     </Link>
-                    <Link to="/portfolio" className={`flex flex-col items-center justify-center py-3 ${isActive('/portfolio') ? 'text-blue-600' : 'text-gray-600'}`}>
+                    <Link to="/about" className={`flex flex-col items-center justify-center py-3 ${isActive('/about') ? 'text-blue-600' : 'text-gray-600'}`}>
                         <i className="fas fa-wallet text-lg"></i>
-                        <span className="text-xs mt-1">Portfolio</span>
+                        <span className="text-xs mt-1">About</span>
                     </Link>
-                    <Link to="/profile" className={`flex flex-col items-center justify-center py-3 ${isActive('/profile') ? 'text-blue-600' : 'text-gray-600'}`}>
+                    <Link to="/contact" className={`flex flex-col items-center justify-center py-3 ${isActive('/contact') ? 'text-blue-600' : 'text-gray-600'}`}>
                         <i className="fas fa-user text-lg"></i>
-                        <span className="text-xs mt-1">Profile</span>
+                        <span className="text-xs mt-1">Contact</span>
                     </Link>
                 </div>
             </div>
