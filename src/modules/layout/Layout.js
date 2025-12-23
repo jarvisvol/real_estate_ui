@@ -1,14 +1,9 @@
 import React from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import CustomFooter from './components/CustomFooter';
 import Navbar from './components/Navbar';
 
 const Layout = () => {
-  const location = useLocation();
-
-  const isActive = (path) => {
-    return location.pathname === path ? 'nav-item active' : 'nav-item';
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">

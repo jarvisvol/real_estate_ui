@@ -13,11 +13,11 @@ import {
 } from './actionTypes';
 
 const initialState = {
+  token: localStorage.getItem('token') || null,
   user: null,
-  token: localStorage.getItem('token'),
-  isLoading: false,
+  loading: false,
   error: null,
-  isAuthenticated: false,
+  isAuthenticated: false
 };
 
 const authReducer = (state = initialState, action) => {
@@ -27,55 +27,49 @@ const authReducer = (state = initialState, action) => {
     case VERIFY_TOKEN_REQUEST:
       return {
         ...state,
-        isLoading: true,
-        error: null,
+        loading: true,
+        error: null
       };
-      
+
     case LOGIN_SUCCESS:
     case REGISTER_SUCCESS:
     case VERIFY_TOKEN_SUCCESS:
       return {
         ...state,
-        isLoading: false,
-        user: action.payload.user,
+        loading: false,
         token: action.payload.token,
+        user: action.payload.user,
         isAuthenticated: true,
-        error: null,
+        error: null
       };
-      
+
     case LOGIN_FAILURE:
     case REGISTER_FAILURE:
-      return {
-        ...state,
-        isLoading: false,
-        error: action.payload,
-        isAuthenticated: false,
-      };
-      
     case VERIFY_TOKEN_FAILURE:
       return {
         ...state,
-        isLoading: false,
-        user: null,
+        loading: false,
         token: null,
+        user: null,
         isAuthenticated: false,
+        error: action.payload
       };
-      
+
     case LOGOUT:
       return {
         ...state,
-        user: null,
         token: null,
+        user: null,
         isAuthenticated: false,
-        error: null,
+        error: null
       };
-      
+
     case CLEAR_ERROR:
       return {
         ...state,
-        error: null,
+        error: null
       };
-      
+
     default:
       return state;
   }
