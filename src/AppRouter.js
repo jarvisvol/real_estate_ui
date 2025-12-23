@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import HomePage from './modules/home/components/Homepage';
-import Login from './modules/auth/components/Login';
+import LoginPage from './modules/auth/components/LoginPage';
 import Register from './modules/auth/components/Register';
 import Layout from './modules/layout/Layout';
 import { verifyToken } from './modules/auth/store/authActions'
@@ -65,7 +65,7 @@ class AppRouter extends Component {
             path="/login" 
             element={
               <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Login />
+                <LoginPage />
               </PublicRoute>
             } 
           />
