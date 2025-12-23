@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import '../css/PropertyCars.css';
+import '../css/PropertyCard.css';
+import feather from 'feather-icons';
 
 const PropertyCard = ({
     image = 'http://static.photos/estate/640x360',

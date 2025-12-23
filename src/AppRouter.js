@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import HomePage from './modules/home/components/Homepage';
 import LoginPage from './modules/auth/components/LoginPage';
-import Register from './modules/auth/components/Register';
+import RegisterPage from './modules/auth/components/RegisterPage';
 import Layout from './modules/layout/Layout';
 import { verifyToken } from './modules/auth/store/authActions'
 
@@ -73,7 +73,7 @@ class AppRouter extends Component {
             path="/register" 
             element={
               <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                <Register />
+                <RegisterPage />
               </PublicRoute>
             } 
           />
