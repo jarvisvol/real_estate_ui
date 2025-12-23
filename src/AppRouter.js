@@ -7,6 +7,9 @@ import LoginPage from './modules/auth/components/LoginPage';
 import RegisterPage from './modules/auth/components/RegisterPage';
 import Layout from './modules/layout/Layout';
 import { verifyToken } from './modules/auth/store/authActions'
+import Properties from './modules/Properties/components/Properties';
+import About from './modules/About/components/About';
+import Contact from './modules/contact/components/Contact';
 
 // Protected Route Component
 class ProtectedRoute extends Component {
@@ -74,6 +77,30 @@ class AppRouter extends Component {
             element={
               <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                 <RegisterPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/properties" 
+            element={
+              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                <Properties />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/about" 
+            element={
+              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                <About />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                <Contact />
               </PublicRoute>
             } 
           />
