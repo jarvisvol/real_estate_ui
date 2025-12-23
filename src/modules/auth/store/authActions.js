@@ -9,14 +9,14 @@ import {
   VERIFY_TOKEN_FAILURE
 } from './actionTypes';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:4000/api';
 // Login action
 export const loginUser = (email, password) => {
   return async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
     
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/user/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export const registerUser = (userData) => async (dispatch) => {
   dispatch({ type: 'REGISTER_REQUEST' });
   
   try {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/user/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
