@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Navbar from '../../layout/components/Navbar';
 import CustomFooter from '../../layout/components/CustomFooter';
 import feather from 'feather-icons';
 import '../../auth/css/Loginpage.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../store/authActions';
+import Loader from '../../common/components/Loder';
 
 const LoginPage = () => {
     const dispatch = useDispatch();
-    const { loading, error, isAuthenticated } = useSelector(state => state.auth);
+    const { loading, isAuthenticated } = useSelector(state => state.auth);
 
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -72,6 +72,8 @@ const LoginPage = () => {
         }
         dispatch(loginUser(formData.email, formData.password));
     };
+    
+    if (loading) return <Loader loading={loading} />;
 
     return (
         <div className="login-page">
