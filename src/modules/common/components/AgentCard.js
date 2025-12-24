@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const AgentCard = ({ user, onEdit, deleteUser }) => {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEdit = () => {
+    navigate('/admin/edit-user');
     if (onEdit) {
       onEdit(user);
-    } else {
-      // Default edit behavior
-      console.log('Edit user:', user._id);
     }
   };
 

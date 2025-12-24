@@ -17,6 +17,8 @@ import AddProperty from './modules/adminpannel/components/AddProperty';
 import PropertiesTable from './modules/adminpannel/components/PropertiesTable';
 import UsersTable from './modules/adminpannel/components/UserTable';
 import EditProperty from './modules/adminpannel/components/EditProperty';
+import AddUser from './modules/adminpannel/components/AddUser';
+import EditUser from './modules/adminpannel/components/EditUser';
 
 // Protected Route Component for regular users
 class ProtectedRoute extends Component {
@@ -250,6 +252,26 @@ class AppRouter extends Component {
                 isLoading={isLoading}
               >
                 <UsersTable />
+              </AdminOnlyProtectedRoute>
+            } />
+
+            <Route path="/admin/add-user" element={
+              <AdminOnlyProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <AddUser />
+              </AdminOnlyProtectedRoute>
+            } />
+
+            <Route path="/admin/edit-user" element={
+              <AdminOnlyProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <EditUser />
               </AdminOnlyProtectedRoute>
             } />
             
