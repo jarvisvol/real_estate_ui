@@ -63,7 +63,7 @@ const adminReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        properties: action.payload,
+        properties: action.payload.data.data,
         error: null
       };
       

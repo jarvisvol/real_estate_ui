@@ -14,6 +14,8 @@ import Contact from './modules/contact/components/Contact';
 import PropertyViewPage from './modules/Properties/components/PropertyViewPage';
 import AdminPanel from './modules/adminpannel/components/AdminPannel';
 import AddProperty from './modules/adminpannel/components/AddProperty';
+import PropertiesTable from './modules/adminpannel/components/PropertiesTable';
+import UsersTable from './modules/adminpannel/components/UserTable';
 
 // Protected Route Component for regular users
 class ProtectedRoute extends Component {
@@ -181,6 +183,14 @@ class AppRouter extends Component {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/property-view" 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <PropertyViewPage />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
           
           {/* Admin/Agent Routes with Admin Layout */}
@@ -206,27 +216,28 @@ class AppRouter extends Component {
               >
                 <AddProperty />
               </AdminAgentProtectedRoute>
-            } />
+              } 
+            />
             
             {/* Properties Management - Admin and Agent */}
-            <Route path="properties" element={
+            <Route path="/admin/properties" element={
               <AdminAgentProtectedRoute 
                 isAuthenticated={isAuthenticated} 
                 userRole={userRole}
                 isLoading={isLoading}
               >
-                <div>Properties Management</div>
+                <PropertiesTable />
               </AdminAgentProtectedRoute>
             } />
             
             {/* Users Management - Admin Only */}
-            <Route path="users" element={
+            <Route path="/admin/users" element={
               <AdminOnlyProtectedRoute 
                 isAuthenticated={isAuthenticated} 
                 userRole={userRole}
                 isLoading={isLoading}
               >
-                <div>Admin Users</div>
+                <UsersTable />
               </AdminOnlyProtectedRoute>
             } />
             

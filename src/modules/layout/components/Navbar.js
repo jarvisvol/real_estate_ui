@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../css/Navbar.css';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
     const location = useLocation();
+    const { user } = useSelector(state => state.auth);
 
     const isActive = (path) => {
         return location.pathname === path ? 'nav-link active' : 'nav-link';
@@ -32,9 +34,16 @@ const Navbar = () => {
                         <Link to="/about" className={isActive('/about')}>
                             About
                         </Link>
-                        <Link to="/admin" className={isActive('/admin')}>
-                            admin
+                        <Link to="/contact" className={isActive('/contact')}>
+                            Contact
                         </Link>
+                        {
+                            user && user.role === 'admin' && (
+                                <Link to="/admin" className={isActive('/admin')}>
+                                    Admin Pannel
+                                </Link>
+                            )
+                        }
                     </nav>
 
                     {/* User Section */}
