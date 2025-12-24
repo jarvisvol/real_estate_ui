@@ -10,6 +10,8 @@ import { verifyToken } from './modules/auth/store/authActions'
 import Properties from './modules/Properties/components/Properties';
 import About from './modules/About/components/About';
 import Contact from './modules/contact/components/Contact';
+import PropertyViewPage from './modules/Properties/components/PropertyViewPage';
+import AdminPanel from './modules/adminpannel/components/AdminPannel';
 
 // Protected Route Component
 class ProtectedRoute extends Component {
@@ -110,12 +112,32 @@ class AppRouter extends Component {
               } 
             />
           </Route>
+          <Route path="/properties/view/:id" element={<Layout />}>
+            <Route 
+              index 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <PropertyViewPage />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
           <Route path="/properties" element={<Layout />}>
             <Route 
               index 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <Properties />
+                </ProtectedRoute>
+              } 
+            />
+          </Route>
+          <Route path="/admin" element={<Layout />}>
+            <Route 
+              index 
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+                  <AdminPanel />
                 </ProtectedRoute>
               } 
             />

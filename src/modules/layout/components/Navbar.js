@@ -32,21 +32,23 @@ const Navbar = () => {
                         <Link to="/about" className={isActive('/about')}>
                             About
                         </Link>
-                        <Link to="/contact" className={isActive('/contact')}>
-                            Contact
+                        <Link to="/admin" className={isActive('/admin')}>
+                            admin
                         </Link>
                     </nav>
 
                     {/* User Section */}
-                    <div className="flex items-center space-x-4">
-                        <div className="hidden md:flex items-center space-x-2 bg-blue-800 px-3 py-1 rounded-full balance">
-                            <i className="fas fa-rupee-sign"></i>
-                            <span>₹25,000</span>
-                        </div>
-                        <div className="hidden md:block w-8 h-8 rounded-full bg-white text-blue-800 flex items-center justify-center font-bold user-avatar">
-                            A
-                        </div>
-                    </div>
+                    <Link
+                        to="/login"
+                        className="hidden md:flex items-center justify-center 
+                        w-10 h-10 rounded-full 
+                        bg-white bg-opacity-10 
+                        hover:bg-opacity-20 
+                        transition"
+                    >
+                        <i data-feather="log-in" className="w-5 h-5 text-white"></i>
+                    </Link>
+
                 </div>
             </div>
             {/* Mobile Bottom Navigation */}
