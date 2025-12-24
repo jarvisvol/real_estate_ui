@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserPropertyDetails } from '../store/actions';
+import { fetchUserPropertyDetails } from '../store/actions'; // Make sure this action exists
 import '../css/PropertyViewPage.css';
 
 const PropertyViewPage = () => {
@@ -9,19 +9,30 @@ const PropertyViewPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     
-    // Get property data from Redux store
-    const { property, loading, error } = useSelector((state) => state.admin);
+    // Get property data from Redux store - UPDATED selector
+    const { propertyDetails, detailsLoading, detailsError } = useSelector((state) =>  state.property );
+    // Choose the correct slice name based on your Redux store structure
     
     const [saved, setSaved] = useState(false);
+    const [property, setProperty] = useState(null);
 
     useEffect(() => {
-        // Fetch property data from Redux action
-        dispatch(fetchUserPropertyDetails(id));
+        if (id) {
+            // Fetch property data from Redux action
+            dispatch(fetchUserPropertyDetails(id));
+        }
         
         // Check if property is saved
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
         setSaved(savedProperties.includes(id));
     }, [id, dispatch]);
+
+    useEffect(() => {
+        // Set property from Redux store when it's loaded
+        if (propertyDetails && propertyDetails._id === id) {
+            setProperty(propertyDetails);
+        }
+    }, [propertyDetails, id]);
 
     const handleSaveProperty = () => {
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
@@ -55,21 +66,21 @@ const PropertyViewPage = () => {
         navigate(`/schedule-tour/${id}`);
     };
 
-    const handleContactAgent = () => {
-        // Open contact form or modal
-        const agentPhone = property?.createdBy?.phoneNumber;
-        const agentEmail = property?.createdBy?.email;
+    // const handleContactAgent = () => {
+    //     // Open contact form or modal
+    //     const agentPhone = property?.createdBy?.phoneNumber;
+    //     const agentEmail = property?.createdBy?.email;
         
-        if (agentPhone) {
-            window.location.href = `tel:${agentPhone}`;
-        } else if (agentEmail) {
-            window.location.href = `mailto:${agentEmail}`;
-        } else {
-            alert('Agent contact information not available');
-        }
-    };
+    //     if (agentPhone) {
+    //         window.location.href = `tel:${agentPhone}`;
+    //     } else if (agentEmail) {
+    //         window.location.href = `mailto:${agentEmail}`;
+    //     } else {
+    //         alert('Agent contact information not available');
+    //     }
+    // };
 
-    if (loading) {
+    if (detailsLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -77,7 +88,7 @@ const PropertyViewPage = () => {
         );
     }
 
-    if (error || !property) {
+    if (detailsError || !property) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-4">
                 <div className="text-center">
@@ -85,7 +96,9 @@ const PropertyViewPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">Property not found</h2>
-                    <p className="text-gray-600 mb-6">The property you're looking for doesn't exist or has been removed.</p>
+                    <p className="text-gray-600 mb-6">
+                        {detailsError || "The property you're looking for doesn't exist or has been removed."}
+                    </p>
                     <button 
                         onClick={handleBack}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
@@ -168,7 +181,7 @@ const PropertyViewPage = () => {
                         </button>
                         <span className="text-gray-400">/</span>
                         <span className="text-gray-900 font-medium truncate max-w-xs">
-                            {property.propertyAddress?.streetAddress || 'Property Details'}
+                            {property?.propertyAddress?.streetAddress || 'Property Details'}
                         </span>
                     </div>
                 </div>
@@ -180,7 +193,7 @@ const PropertyViewPage = () => {
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-6">
                         <div className="flex-1">
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                                {property.propertyAddress?.streetAddress || 'Property Address'}
+                                {property?.propertyAddress?.streetAddress || 'Property Address'}
                             </h1>
                             <div className="flex items-center text-gray-600 mb-4">
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +201,7 @@ const PropertyViewPage = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                                 <span>
-                                    {property.propertyAddress?.city}, {property.propertyAddress?.state} {property.propertyAddress?.zipCode}
+                                    {property?.propertyAddress?.city}, {property?.propertyAddress?.state} {property?.propertyAddress?.zipCode}
                                 </span>
                             </div>
                         </div>
@@ -218,15 +231,15 @@ const PropertyViewPage = () => {
 
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="text-2xl font-bold text-blue-600">
-                            {property.price?.currency || '₹'}{property.price?.amount?.toLocaleString() || '0'}
+                            {property?.price?.currency || '₹'}{property?.price?.amount?.toLocaleString() || '0'}
                         </div>
                         
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            property.price?.priceType === 'sale' 
+                            property?.price?.priceType === 'sale' 
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-blue-100 text-blue-800'
                         }`}>
-                            {property.price?.priceType === 'sale' ? 'For Sale' : 'For Rent'}
+                            {property?.price?.priceType === 'sale' ? 'For Sale' : 'For Rent'}
                         </span>
                     </div>
                 </div>
@@ -236,7 +249,7 @@ const PropertyViewPage = () => {
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="h-64 md:h-96 bg-gray-100 flex items-center justify-center">
-                                {property.images?.[0]?.url ? (
+                                {property?.images?.[0]?.url ? (
                                     <img 
                                         src={property.images[0].url} 
                                         alt="Property"
@@ -250,7 +263,7 @@ const PropertyViewPage = () => {
                             </div>
                             
                             {/* Thumbnail Gallery */}
-                            {property.images && property.images.length > 1 && (
+                            {property?.images && property.images.length > 1 && (
                                 <div className="p-4 border-t border-gray-200">
                                     <div className="flex space-x-2 overflow-x-auto">
                                         {property.images.map((image, index) => (
@@ -281,12 +294,12 @@ const PropertyViewPage = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-500">Plot Area</p>
-                                            <p className="font-medium">{property.dimensions?.plotArea?.value || '0'} {property.dimensions?.plotArea?.unit || 'sqft'}</p>
+                                            <p className="font-medium">{property?.dimensions?.plotArea?.value || '0'} {property?.dimensions?.plotArea?.unit || 'sqft'}</p>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                {property.dimensions?.builtUpArea?.value && (
+                                {property?.dimensions?.builtUpArea?.value && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
                                             <div className="bg-blue-50 p-2 rounded-lg mr-3">
@@ -302,7 +315,7 @@ const PropertyViewPage = () => {
                                     </div>
                                 )}
 
-                                {property.distanceFromTransport?.railwayStation && (
+                                {property?.distanceFromTransport?.railwayStation && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
                                             <div className="bg-green-50 p-2 rounded-lg mr-3">
@@ -320,7 +333,7 @@ const PropertyViewPage = () => {
                                     </div>
                                 )}
 
-                                {property.distanceFromTransport?.busStand && (
+                                {property?.distanceFromTransport?.busStand && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
                                             <div className="bg-yellow-50 p-2 rounded-lg mr-3">
@@ -346,17 +359,17 @@ const PropertyViewPage = () => {
                             <div className="flex items-center mb-4">
                                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
                                     <span className="text-blue-600 font-bold text-lg">
-                                        {property.createdBy?.name?.charAt(0) || 'A'}
+                                        {property?.createdBy?.name?.charAt(0) || 'A'}
                                     </span>
                                 </div>
                                 <div>
-                                    <h3 className="font-medium text-gray-900">{property.createdBy?.name || 'Agent'}</h3>
+                                    <h3 className="font-medium text-gray-900">{property?.createdBy?.name || 'Agent'}</h3>
                                     <p className="text-sm text-gray-500">Property Owner</p>
                                 </div>
                             </div>
                             
                             <div className="space-y-3">
-                                {property.createdBy?.phoneNumber && (
+                                {property?.createdBy?.phoneNumber && (
                                     <button
                                         onClick={() => window.location.href = `tel:${property.createdBy.phoneNumber}`}
                                         className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium"
@@ -368,7 +381,7 @@ const PropertyViewPage = () => {
                                     </button>
                                 )}
                                 
-                                {property.createdBy?.email && (
+                                {property?.createdBy?.email && (
                                     <button
                                         onClick={() => window.location.href = `mailto:${property.createdBy.email}`}
                                         className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 rounded-lg font-medium"
@@ -399,8 +412,8 @@ const PropertyViewPage = () => {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Property Description</h2>
                     <div className="prose max-w-none">
                         <p className="text-gray-700">
-                            {property.description || `This property is located in ${property.propertyAddress?.city}, ${property.propertyAddress?.state}. 
-                            With a plot area of ${property.dimensions?.plotArea?.value || '0'} ${property.dimensions?.plotArea?.unit || 'sqft'}, 
+                            {property?.description || `This property is located in ${property?.propertyAddress?.city}, ${property?.propertyAddress?.state}. 
+                            With a plot area of ${property?.dimensions?.plotArea?.value || '0'} ${property?.dimensions?.plotArea?.unit || 'sqft'}, 
                             it offers great potential for development or residential use.`}
                         </p>
                     </div>
@@ -426,7 +439,7 @@ const PropertyViewPage = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <span>
-                            {property.propertyAddress?.streetAddress}, {property.propertyAddress?.city}, {property.propertyAddress?.state} {property.propertyAddress?.zipCode}
+                            {property?.propertyAddress?.streetAddress}, {property?.propertyAddress?.city}, {property?.propertyAddress?.state} {property?.propertyAddress?.zipCode}
                         </span>
                     </div>
                 </div>

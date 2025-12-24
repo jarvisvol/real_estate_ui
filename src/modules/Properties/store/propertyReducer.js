@@ -30,7 +30,7 @@ const initialState = {
   totalProperties: 0,
   totalPages: 1,
   currentPage: 1,
-  limit: 12,
+  limit: 10, // Changed from 12 to match your API default
   
   // Filters and sorting
   filters: {
@@ -74,14 +74,18 @@ const propertyReducer = (state = initialState, action) => {
       };
       
     case FETCH_USER_PROPERTIES_SUCCESS:
+      // Handle the nested response structure
+      const responseData = action.payload?.data?.data || [];
+      const paginationData = action.payload?.data || {};
+      
       return {
         ...state,
         loading: false,
-        properties: action.payload.data?.data || [],
-        totalProperties: action.payload.data?.total || 0,
-        totalPages: action.payload.data?.totalPages || 1,
-        currentPage: action.payload.data?.currentPage || 1,
-        limit: action.payload.data?.limit || 12,
+        properties: responseData,
+        totalProperties: paginationData.total || 0,
+        totalPages: paginationData.totalPages || 1,
+        currentPage: paginationData.currentPage || 1,
+        limit: parseInt(paginationData.limit) || 10,
         error: null
       };
       
@@ -90,6 +94,9 @@ const propertyReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         properties: [],
+        totalProperties: 0,
+        totalPages: 1,
+        currentPage: 1,
         error: action.payload
       };
       
@@ -98,14 +105,17 @@ const propertyReducer = (state = initialState, action) => {
       return {
         ...state,
         detailsLoading: true,
-        detailsError: null
+        detailsError: null,
+        propertyDetails: null
       };
       
     case FETCH_USER_PROPERTY_DETAILS_SUCCESS:
+      // Handle different response structures
+      const detailsData = action.payload?.data || action.payload;
       return {
         ...state,
         detailsLoading: false,
-        propertyDetails: action.payload.data || action.payload,
+        propertyDetails: detailsData,
         detailsError: null
       };
       
@@ -113,6 +123,7 @@ const propertyReducer = (state = initialState, action) => {
       return {
         ...state,
         detailsLoading: false,
+        propertyDetails: null,
         detailsError: action.payload
       };
       
@@ -149,6 +160,12 @@ const propertyReducer = (state = initialState, action) => {
           : property
       );
       
+      // Update property details if it's the current one being viewed
+      const updatedPropertyDetails = state.propertyDetails && 
+        state.propertyDetails._id === action.payload.propertyId
+          ? { ...state.propertyDetails, isSaved: true }
+          : state.propertyDetails;
+      
       // Add to saved properties if not already there
       const savedProperty = state.properties.find(p => p._id === action.payload.propertyId);
       const updatedSavedProperties = savedProperty && !state.savedProperties.find(p => p._id === action.payload.propertyId)
@@ -159,6 +176,7 @@ const propertyReducer = (state = initialState, action) => {
         ...state,
         saving: false,
         properties: updatedProperties,
+        propertyDetails: updatedPropertyDetails,
         savedProperties: updatedSavedProperties,
         saveSuccess: true,
         saveError: null
@@ -189,6 +207,12 @@ const propertyReducer = (state = initialState, action) => {
           : property
       );
       
+      // Update property details if it's the current one being viewed
+      const unsavedPropertyDetails = state.propertyDetails && 
+        state.propertyDetails._id === action.payload.propertyId
+          ? { ...state.propertyDetails, isSaved: false }
+          : state.propertyDetails;
+      
       // Remove from saved properties
       const filteredSavedProperties = state.savedProperties.filter(
         property => property._id !== action.payload.propertyId
@@ -198,6 +222,7 @@ const propertyReducer = (state = initialState, action) => {
         ...state,
         unsaving: false,
         properties: unsavedProperties,
+        propertyDetails: unsavedPropertyDetails,
         savedProperties: filteredSavedProperties,
         unsaveSuccess: true,
         saveError: null
@@ -220,10 +245,12 @@ const propertyReducer = (state = initialState, action) => {
       };
       
     case FETCH_SAVED_PROPERTIES_SUCCESS:
+      // Handle nested response structure for saved properties too
+      const savedResponseData = action.payload?.data?.data || [];
       return {
         ...state,
         savedLoading: false,
-        savedProperties: action.payload.data?.data || [],
+        savedProperties: savedResponseData,
         savedError: null
       };
       
@@ -231,6 +258,7 @@ const propertyReducer = (state = initialState, action) => {
       return {
         ...state,
         savedLoading: false,
+        savedProperties: [],
         savedError: action.payload
       };
       

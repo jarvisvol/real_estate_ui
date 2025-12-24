@@ -20,7 +20,6 @@ const AdminSidebar = ({
     const [activeSection, setActiveSection] = useState('dashboard');
     const [isCollapsed, setIsCollapsed] = useState(collapsed);
     const sidebarRef = useRef(null);
-    const featherMounted = useRef(false);
 
     useEffect(() => {
         // Determine active section from current path
@@ -72,13 +71,6 @@ const AdminSidebar = ({
                     label: 'Users',
                     icon: 'users',
                     path: '/admin/users',
-                    badge: null
-                },
-                {
-                    id: 'agents',
-                    label: 'Agents',
-                    icon: 'user-check',
-                    path: '/admin/agents',
                     badge: null
                 }
             ]
