@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import AdminSidebar from './AdminSideBar';
-import AdminNavbar from './AdminNavbar';
-import AdminDashboard from './AdminDashboard';
 import '../css/AdminPannel.css';
 
 const AdminPanel = () => {
@@ -11,41 +8,17 @@ const AdminPanel = () => {
     setCurrentSection(section);
   };
 
-  const renderContent = () => {
-    switch(currentSection) {
-      case 'dashboard':
-        return <AdminDashboard />;
-      case 'properties':
-        return <div>Properties Content</div>;
-      case 'users':
-        return <div>Users Content</div>;
-      case 'roles':
-        return <div>Roles Content</div>;
-      case 'settings':
-        return <div>Settings Content</div>;
-      default:
-        return <AdminDashboard />;
-    }
+  // Your dashboard rendering logic here (without sidebar/navbar)
+  const renderDashboard = () => {
+    // Return just the dashboard content
+    return (
+      <div className="admin-dashboard-content">
+        {/* Your dashboard JSX from earlier */}
+      </div>
+    );
   };
 
-  return (
-    <div className="admin-panel-container">
-      <AdminSidebar 
-        currentSection={currentSection}
-        onSectionChange={handleSectionChange}
-      />
-      
-      <div className="admin-main-content">
-        <AdminNavbar />
-        
-        <main className="admin-content-area">
-          <div className="dashboard-content-wrapper">
-            {renderContent()}
-          </div>
-        </main>
-      </div>
-    </div>
-  );
+  return renderDashboard();
 };
 
 export default AdminPanel;

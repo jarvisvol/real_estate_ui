@@ -6,14 +6,16 @@ import HomePage from './modules/home/components/Homepage';
 import LoginPage from './modules/auth/components/LoginPage';
 import RegisterPage from './modules/auth/components/RegisterPage';
 import Layout from './modules/layout/Layout';
+import AdminLayout from './modules/adminpannel/components/AdminLayout';
 import { verifyToken } from './modules/auth/store/authActions'
 import Properties from './modules/Properties/components/Properties';
 import About from './modules/About/components/About';
 import Contact from './modules/contact/components/Contact';
 import PropertyViewPage from './modules/Properties/components/PropertyViewPage';
 import AdminPanel from './modules/adminpannel/components/AdminPannel';
+import AddProperty from './modules/adminpannel/components/AddProperty';
 
-// Protected Route Component
+// Protected Route Component for regular users
 class ProtectedRoute extends Component {
   render() {
     const { isAuthenticated, isLoading, children } = this.props;
@@ -30,10 +32,10 @@ class ProtectedRoute extends Component {
   }
 }
 
-// Public Route Component (redirect to home if already authenticated)
-class PublicRoute extends Component {
+// Admin/Agent Protected Route Component
+class AdminAgentProtectedRoute extends Component {
   render() {
-    const { isAuthenticated, isLoading, children } = this.props;
+    const { isAuthenticated, userRole, isLoading, children } = this.props;
     
     if (isLoading) {
       return (
@@ -43,7 +45,51 @@ class PublicRoute extends Component {
       );
     }
     
-    return !isAuthenticated ? children : <Navigate to="/" replace />;
+    // Allow both admin and agent roles
+    return (isAuthenticated && ['admin', 'agent'].includes(userRole)) ? children : <Navigate to="/" replace />;
+  }
+}
+
+// Admin Only Protected Route Component
+class AdminOnlyProtectedRoute extends Component {
+  render() {
+    const { isAuthenticated, userRole, isLoading, children } = this.props;
+    
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+    
+    // Allow only admin role
+    return (isAuthenticated && userRole === 'admin') ? children : <Navigate to="/" replace />;
+  }
+}
+
+// Public Route Component (redirect to appropriate page if already authenticated)
+class PublicRoute extends Component {
+  render() {
+    const { isAuthenticated, userRole, isLoading, children } = this.props;
+    
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+    
+    if (isAuthenticated) {
+      // Redirect to admin panel if admin, else to home
+      if (userRole === 'admin' || userRole === 'agent') {
+        return <Navigate to="/admin/dashboard" replace />;
+      }
+      return <Navigate to="/" replace />;
+    }
+    
+    return children;
   }
 }
 
@@ -53,7 +99,8 @@ class AppRouter extends Component {
   }
 
   render() {
-    const { isLoading, isAuthenticated } = this.props.auth;
+    const { isLoading, isAuthenticated, user } = this.props.auth;
+    const userRole = user?.role || 'user';
     
     if (isLoading) {
       return (
@@ -66,10 +113,15 @@ class AppRouter extends Component {
     return (
       <Router>
         <Routes>
+          {/* Public Routes */}
           <Route 
             path="/login" 
             element={
-              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <PublicRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
                 <LoginPage />
               </PublicRoute>
             } 
@@ -77,11 +129,17 @@ class AppRouter extends Component {
           <Route 
             path="/register" 
             element={
-              <PublicRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
+              <PublicRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
                 <RegisterPage />
               </PublicRoute>
             } 
           />
+          
+          {/* Regular User Routes with Layout */}
           <Route path="/" element={<Layout />}>
             <Route 
               index 
@@ -91,40 +149,32 @@ class AppRouter extends Component {
                 </ProtectedRoute>
               } 
             />
-          </Route>
-          <Route path="/about" element={<Layout />}>
             <Route 
-              index 
+              path="/about" 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <About />
                 </ProtectedRoute>
               } 
             />
-          </Route>
-          <Route path="/contact" element={<Layout />}>
             <Route 
-              index 
+              path="/contact" 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <Contact />
                 </ProtectedRoute>
               } 
             />
-          </Route>
-          <Route path="/properties/view/:id" element={<Layout />}>
             <Route 
-              index 
+              path="/properties/view/:id" 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <PropertyViewPage />
                 </ProtectedRoute>
               } 
             />
-          </Route>
-          <Route path="/properties" element={<Layout />}>
             <Route 
-              index 
+              path="/properties" 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <Properties />
@@ -132,16 +182,67 @@ class AppRouter extends Component {
               } 
             />
           </Route>
-          <Route path="/admin" element={<Layout />}>
-            <Route 
-              index 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <AdminPanel />
-                </ProtectedRoute>
-              } 
-            />
+          
+          {/* Admin/Agent Routes with Admin Layout */}
+          <Route path="/admin" element={
+            <AdminAgentProtectedRoute 
+              isAuthenticated={isAuthenticated} 
+              userRole={userRole}
+              isLoading={isLoading}
+            >
+              <AdminLayout />
+            </AdminAgentProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminPanel />} />
+            
+            {/* Add Property - Accessible by both Admin and Agent */}
+            <Route path="add-property" element={
+              <AdminAgentProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <AddProperty />
+              </AdminAgentProtectedRoute>
+            } />
+            
+            {/* Properties Management - Admin and Agent */}
+            <Route path="properties" element={
+              <AdminAgentProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <div>Properties Management</div>
+              </AdminAgentProtectedRoute>
+            } />
+            
+            {/* Users Management - Admin Only */}
+            <Route path="users" element={
+              <AdminOnlyProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <div>Admin Users</div>
+              </AdminOnlyProtectedRoute>
+            } />
+            
+            {/* Settings - Admin Only */}
+            <Route path="settings" element={
+              <AdminOnlyProtectedRoute 
+                isAuthenticated={isAuthenticated} 
+                userRole={userRole}
+                isLoading={isLoading}
+              >
+                <div>Admin Settings</div>
+              </AdminOnlyProtectedRoute>
+            } />
           </Route>
+          
+          {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

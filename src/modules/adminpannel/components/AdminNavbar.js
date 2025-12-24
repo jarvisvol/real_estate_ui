@@ -185,59 +185,9 @@ const AdminNavbar = ({
                     >
                         <i data-feather="menu"></i>
                     </button>
-                    <h1 className="page-title">
-                        {sectionTitles[currentSection] || 'Dashboard'}
-                    </h1>
                 </div>
-
-                {/* Center Section - Search */}
-                {showSearch && (
-                    <div className="navbar-center">
-                        <div className="search-container">
-                            <i data-feather="search" className="search-icon"></i>
-                            <input
-                                ref={searchInputRef}
-                                type="text"
-                                className="search-input"
-                                placeholder="Search properties, users, analytics..."
-                                value={searchTerm}
-                                onChange={handleSearch}
-                                onKeyPress={handleKeyPress}
-                                aria-label="Search"
-                            />
-                            {searchTerm && (
-                                <button 
-                                    className="clear-search"
-                                    onClick={handleClearSearch}
-                                    aria-label="Clear search"
-                                >
-                                    <i data-feather="x"></i>
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                )}
-
                 {/* Right Section - User Menu & Notifications */}
                 <div className="navbar-right">
-                    {/* Quick Action Buttons */}
-                    <div className="quick-actions">
-                        <button 
-                            className="action-button"
-                            onClick={() => navigate('/admin/add-property')}
-                            aria-label="Add new property"
-                        >
-                            <i data-feather="plus"></i>
-                        </button>
-                        <button 
-                            className="action-button"
-                            onClick={() => navigate('/admin/reports')}
-                            aria-label="View reports"
-                        >
-                            <i data-feather="bar-chart-2"></i>
-                        </button>
-                    </div>
-
                     {/* Notifications */}
                     {showNotifications && (
                         <div 

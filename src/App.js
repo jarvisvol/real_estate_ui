@@ -4,8 +4,6 @@ import { Provider } from 'react-redux';
 import store from './Utils/store/store';
 import feather from 'feather-icons';
 
-
-
 export default function App() {
    useEffect(() => {
     feather.replace();

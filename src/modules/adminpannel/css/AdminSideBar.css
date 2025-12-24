@@ -1,9 +1,9 @@
 /* Admin Sidebar Container */
 .admin-sidebar {
-    width: 280px;
+    width: 20%;
     background-color: #111827;
     color: #f3f4f6;
-    height: 100vh;
+    height: 100%;
     position: fixed;
     left: 0;
     top: 0;
