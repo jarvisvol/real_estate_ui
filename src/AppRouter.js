@@ -186,14 +186,6 @@ class AppRouter extends Component {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/property-view" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <PropertyViewPage />
-                </ProtectedRoute>
-              } 
-            />
           </Route>
           
           {/* Admin/Agent Routes with Admin Layout */}

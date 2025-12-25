@@ -1,181 +1,123 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import PropertyCard from '../../common/components/PropertyCard'
+import PropertyCard from '../../common/components/PropertyCard';
 import '../css/Properties.css';
 import feather from 'feather-icons';
+import { fetchUserProperties, filterUserProperties } from '../store/actions';
+import { useSelector, useDispatch } from 'react-redux';
 
 const PropertiesPage = () => {
-    const navigate = useNavigate();
-    const [filters, setFilters] = useState({
-        sortBy: 'Newest First',
-        minPrice: 'Min',
-        maxPrice: 'Max',
-        bedrooms: 'Any',
-        bathrooms: 'Any'
+    const dispatch = useDispatch();
+    
+    const { 
+        properties: propertyData, 
+        loading, 
+        currentPage, 
+        totalPages,
+        totalProperties,
+        limit,
+        filters: reduxFilters
+    } = useSelector(state => state.property);
+    
+    const [localFilters, setLocalFilters] = useState({
+        city: '',
+        minPrice: '',
+        maxPrice: '',
+        sortBy: 'createdAt'
     });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [properties, setProperties] = useState([]);
-    const [loading, setLoading] = useState(true);
+
+    // Initialize with Redux filters if they exist
+    useEffect(() => {
+        if (reduxFilters) {
+            setLocalFilters(reduxFilters);
+        }
+    }, [reduxFilters]);
+
+    useEffect(() => {
+        dispatch(fetchUserProperties({
+            page: currentPage,
+            limit: limit,
+            ...reduxFilters
+        }));
+    }, [dispatch, currentPage, limit, reduxFilters]);
 
     useEffect(() => {
         // Initialize feather icons
         if (typeof feather !== 'undefined') {
             feather.replace();
         }
-
-        // Load properties data
-        loadProperties();
-    }, [currentPage]);
-
-    const loadProperties = () => {
-        setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            const mockProperties = [
-                {
-                    id: 1,
-                    image: 'http://static.photos/estate/640x360/1',
-                    price: '$450,000',
-                    address: '123 Dream Street, New York',
-                    beds: 3,
-                    baths: 2,
-                    sqft: '1,850',
-                    type: 'House',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 2,
-                    image: 'http://static.photos/estate/640x360/2',
-                    price: '$320,000',
-                    address: '456 Urban Ave, Chicago',
-                    beds: 2,
-                    baths: 1.5,
-                    sqft: '1,200',
-                    type: 'Apartment',
-                    status: 'For Sale',
-                    favorite: true
-                },
-                {
-                    id: 3,
-                    image: 'http://static.photos/estate/640x360/3',
-                    price: '$1,200,000',
-                    address: '789 Ocean View, Miami',
-                    beds: 4,
-                    baths: 3,
-                    sqft: '3,200',
-                    type: 'Villa',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 4,
-                    image: 'http://static.photos/estate/640x360/4',
-                    price: '$275,000',
-                    address: '101 Downtown, Austin',
-                    beds: 2,
-                    baths: 2,
-                    sqft: '1,350',
-                    type: 'Condo',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 5,
-                    image: 'http://static.photos/estate/640x360/5',
-                    price: '$650,000',
-                    address: '202 Forest Lane, Seattle',
-                    beds: 3,
-                    baths: 2.5,
-                    sqft: '2,100',
-                    type: 'House',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 6,
-                    image: 'http://static.photos/estate/640x360/6',
-                    price: '$380,000',
-                    address: '303 Park Ave, Boston',
-                    beds: 2,
-                    baths: 2,
-                    sqft: '1,450',
-                    type: 'Apartment',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 7,
-                    image: 'http://static.photos/estate/640x360/7',
-                    price: '$525,000',
-                    address: '404 Lake View, Denver',
-                    beds: 3,
-                    baths: 2,
-                    sqft: '1,950',
-                    type: 'House',
-                    status: 'For Sale',
-                    favorite: false
-                },
-                {
-                    id: 8,
-                    image: 'http://static.photos/estate/640x360/8',
-                    price: '$210,000',
-                    address: '505 City Center, Atlanta',
-                    beds: 1,
-                    baths: 1,
-                    sqft: '900',
-                    type: 'Condo',
-                    status: 'For Sale',
-                    favorite: false
-                }
-            ];
-            setProperties(mockProperties);
-            setLoading(false);
-        }, 800);
-    };
+    }, [propertyData]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        setFilters(prev => ({
+        setLocalFilters(prev => ({
             ...prev,
             [name]: value
         }));
     };
 
+    const handleSearchChange = (e) => {
+        const { value } = e.target;
+        setLocalFilters(prev => ({
+            ...prev,
+            city: value
+        }));
+    };
+
+
     const handleApplyFilters = () => {
-        console.log('Applying filters:', filters);
-        setCurrentPage(1);
-        // In a real app, you would fetch filtered properties from API
+        dispatch(filterUserProperties(localFilters));
+        dispatch(fetchUserProperties({
+            page: 1, // Reset to first page when applying filters
+            limit: limit,
+            ...localFilters
+        }));
     };
 
     const handleResetFilters = () => {
-        setFilters({
-            sortBy: 'Newest First',
-            minPrice: 'Min',
-            maxPrice: 'Max',
-            bedrooms: 'Any',
-            bathrooms: 'Any'
-        });
+        const resetFilters = {
+            city: '',
+            minPrice: '',
+            maxPrice: '',
+            sortBy: 'createdAt'
+        };
+        setLocalFilters(resetFilters);
+        dispatch(filterUserProperties(resetFilters));
+        dispatch(fetchUserProperties({
+            page: 1,
+            limit: limit,
+            ...resetFilters
+        }));
     };
 
     const handlePageChange = (page) => {
-        setCurrentPage(page);
+        dispatch(fetchUserProperties({
+            page: page,
+            limit: limit,
+            ...reduxFilters
+        }));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleFavoriteToggle = (propertyId, isFavorite) => {
-        console.log(`Property ${propertyId} favorite: ${isFavorite}`);
-        // Update local state
-        setProperties(prev => prev.map(property => 
-            property.id === propertyId 
-                ? { ...property, favorite: isFavorite }
-                : property
-        ));
+    const formatPrice = (amount) => {
+        if (!amount) return '₹0';
+        
+        if (amount >= 10000000) {
+            return `₹${(amount / 10000000).toFixed(1)}Cr`;
+        } else if (amount >= 100000) {
+            return `₹${(amount / 100000).toFixed(1)}L`;
+        } else {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
     };
 
-    const totalPages = 3; // This would come from API in real app
-
     const renderPagination = () => {
+        if (!totalPages || totalPages <= 1) return null;
+        
         const pages = [];
         
         // Previous button
@@ -183,7 +125,7 @@ const PropertiesPage = () => {
             <button
                 key="prev"
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || loading}
                 className="pagination-button"
             >
                 <i data-feather="chevron-left"></i>
@@ -197,6 +139,7 @@ const PropertiesPage = () => {
                     key={i}
                     onClick={() => handlePageChange(i)}
                     className={`pagination-number ${currentPage === i ? 'active' : ''}`}
+                    disabled={loading}
                 >
                     {i}
                 </button>
@@ -208,7 +151,7 @@ const PropertiesPage = () => {
             <button
                 key="next"
                 onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || loading}
                 className="pagination-button"
             >
                 <i data-feather="chevron-right"></i>
@@ -226,107 +169,98 @@ const PropertiesPage = () => {
                     <h1 className="page-title">Our Property Listings</h1>
                     <p className="page-subtitle">
                         Browse through our carefully curated selection of homes and find your perfect match.
+                        {totalProperties > 0 && ` (${totalProperties} properties)`}
                     </p>
                 </div>
 
                 {/* Advanced Filters */}
                 <div className="filters-container">
                     <div className="filters-grid">
+                        {/* Search Bar */}
+                        <div className="filter-group">
+                            <label className="filter-label">
+                                Search By City
+                            </label>
+                            <input 
+                                type="text"
+                                name="city"
+                                value={localFilters.city}
+                                onChange={handleSearchChange}
+                                placeholder="Enter city name..."
+                                className="filter-input"
+                                disabled={loading}
+                            />
+                        </div>
+
                         {/* Sort By */}
                         <div className="filter-group">
-                            <label className="filter-label">Sort By</label>
+                            <label className="filter-label">
+                                Sort By
+                            </label>
                             <select 
                                 name="sortBy"
-                                value={filters.sortBy}
+                                value={localFilters.sortBy}
                                 onChange={handleFilterChange}
                                 className="filter-select"
+                                disabled={loading}
                             >
-                                <option>Newest First</option>
-                                <option>Price: Low to High</option>
-                                <option>Price: High to Low</option>
-                                <option>Bedrooms</option>
-                                <option>Sqft</option>
+                                <option value="createdAt">Newest First</option>
+                                <option value="price.amount">Price: Low to High</option>
+                                <option value="-price.amount">Price: High to Low</option>
+                                <option value="dimensions.plotArea.value">Largest Plot</option>
                             </select>
                         </div>
 
                         {/* Price Range */}
                         <div className="filter-group">
-                            <label className="filter-label">Price Range</label>
+                            <label className="filter-label">
+                                Price Range
+                            </label>
                             <div className="price-range">
                                 <select 
                                     name="minPrice"
-                                    value={filters.minPrice}
+                                    value={localFilters.minPrice}
                                     onChange={handleFilterChange}
                                     className="price-select"
+                                    disabled={loading}
                                 >
-                                    <option>Min</option>
-                                    <option>$100k</option>
-                                    <option>$300k</option>
-                                    <option>$500k</option>
-                                    <option>$1M</option>
+                                    <option value="">Min</option>
+                                    <option value="100000">₹10L</option>
+                                    <option value="3000000">₹30L</option>
+                                    <option value="5000000">₹50L</option>
+                                    <option value="10000000">₹1Cr</option>
                                 </select>
                                 <span className="price-separator">to</span>
                                 <select 
                                     name="maxPrice"
-                                    value={filters.maxPrice}
+                                    value={localFilters.maxPrice}
                                     onChange={handleFilterChange}
                                     className="price-select"
+                                    disabled={loading}
                                 >
-                                    <option>Max</option>
-                                    <option>$300k</option>
-                                    <option>$500k</option>
-                                    <option>$1M</option>
-                                    <option>$5M+</option>
+                                    <option value="">Max</option>
+                                    <option value="3000000">₹30L</option>
+                                    <option value="5000000">₹50L</option>
+                                    <option value="10000000">₹1Cr</option>
+                                    <option value="30000000">₹3Cr</option>
                                 </select>
                             </div>
                         </div>
 
-                        {/* Bedrooms */}
-                        <div className="filter-group">
-                            <label className="filter-label">Bedrooms</label>
-                            <select 
-                                name="bedrooms"
-                                value={filters.bedrooms}
-                                onChange={handleFilterChange}
-                                className="filter-select"
-                            >
-                                <option>Any</option>
-                                <option>1+</option>
-                                <option>2+</option>
-                                <option>3+</option>
-                                <option>4+</option>
-                            </select>
-                        </div>
-
-                        {/* Bathrooms */}
-                        <div className="filter-group">
-                            <label className="filter-label">Bathrooms</label>
-                            <select 
-                                name="bathrooms"
-                                value={filters.bathrooms}
-                                onChange={handleFilterChange}
-                                className="filter-select"
-                            >
-                                <option>Any</option>
-                                <option>1+</option>
-                                <option>1.5+</option>
-                                <option>2+</option>
-                                <option>3+</option>
-                            </select>
-                        </div>
-
-                        {/* Filter Buttons */}
-                        <div className="filter-buttons">
+                        {/* Filter Buttons - Now in same row */}
+                        <div className="filter-buttons-container">
                             <button 
                                 onClick={handleApplyFilters}
                                 className="apply-filters-button"
+                                disabled={loading}
                             >
                                 <i data-feather="filter"></i> 
-                                <span>Apply Filters</span>
+                                <span>{loading ? 'Applying...' : 'Apply Filters'}</span>
                             </button>
                             <button 
                                 onClick={handleResetFilters}
                                 className="reset-filters-button"
+                                disabled={loading}
                             >
                                 <i data-feather="refresh-cw"></i>
                                 <span>Reset</span>
@@ -338,18 +272,22 @@ const PropertiesPage = () => {
                 {/* Results Count */}
                 <div className="results-info">
                     <p className="results-count">
-                        Showing <span className="highlight">{properties.length}</span> properties
+                        Showing <span className="highlight">{propertyData?.length || 0}</span> of{' '}
+                        <span className="highlight">{totalProperties || 0}</span> properties
+                        {localFilters.city && ` in ${localFilters.city}`}
                     </p>
                     <div className="view-toggle">
                         <button 
                             className="view-toggle-button active"
                             aria-label="Grid view"
+                            disabled={loading}
                         >
                             <i data-feather="grid"></i>
                         </button>
                         <button 
                             className="view-toggle-button"
                             aria-label="List view"
+                            disabled={loading}
                         >
                             <i data-feather="list"></i>
                         </button>
@@ -364,34 +302,30 @@ const PropertiesPage = () => {
                         </div>
                         <p>Loading properties...</p>
                     </div>
-                ) : properties.length === 0 ? (
-                    <div className="no-results">
-                        <i data-feather="home" className="no-results-icon"></i>
-                        <h3>No properties found</h3>
-                        <p>Try adjusting your filters or search criteria.</p>
-                        <button 
-                            onClick={handleResetFilters}
-                            className="reset-filters-button"
-                        >
-                            Reset Filters
-                        </button>
-                    </div>
-                ) : (
+                ) :
+                (
                     <div className="properties-grid">
-                        {properties.map(property => (
-                            <PropertyCard
-                                key={property.id}
-                                {...property}
-                                isFavorite={property.favorite}
-                                linkTo={`/property/${property.id}`}
-                                onFavoriteToggle={handleFavoriteToggle}
-                            />
+                        {propertyData?.map(property => (
+                            property && property._id && (
+                                <PropertyCard
+                                    key={property._id}
+                                    id={property._id}
+                                    // image={property.images?.[0]?.url}
+                                    amount={formatPrice(property.price?.amount)}
+                                    address={`${property.propertyAddress?.streetAddress || ''}, ${property.propertyAddress?.city || ''}`}
+                                    beds="N/A" // Update if you have bedrooms in your data
+                                    baths="N/A" // Update if you have bathrooms in your data
+                                    sqft={property.dimensions?.plotArea?.value || property.dimensions?.builtUpArea?.value}
+                                    type="Property"
+                                    linkTo={`/properties/view/${property._id}`}
+                                />
+                            )
                         ))}
                     </div>
                 )}
 
                 {/* Pagination */}
-                {!loading && properties.length > 0 && (
+                {!loading && propertyData?.length > 0 && totalPages > 1 && (
                     <div className="pagination-container">
                         <nav className="pagination">
                             {renderPagination()}
