@@ -78,7 +78,7 @@ export const addUser = (userData) => async (dispatch) => {
 export const fetchUserDetails = (userId) => async (dispatch) => {
   dispatch({ type: FETCH_USER_DETAILS_REQUEST });
   try {
-    const response = await authApi.get(`/admin/users/${userId}`);
+    const response = await authApi.get(`/admin/user/${userId}`);
     dispatch({
       type: FETCH_USER_DETAILS_SUCCESS,
       payload: response.data
@@ -288,7 +288,7 @@ export const updateUser = (userId, userData) => {
     dispatch({ type: UPDATE_USER_REQUEST });
 
     try {
-      const response = await authApi.put(`/admin/users/${userId}`, userData, {
+      const response = await authApi.put(`/admin/user/${userId}`, userData, {
 
       });
 
@@ -315,7 +315,7 @@ export const deleteUser = (userId) => {
     dispatch({ type: DELETE_USER_REQUEST });
 
     try {
-      await authApi.delete(`/admin/users/${userId}`, {
+      await authApi.delete(`/admin/user/${userId}`, {
 
       });
 

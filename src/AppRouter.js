@@ -265,7 +265,7 @@ class AppRouter extends Component {
               </AdminOnlyProtectedRoute>
             } />
 
-            <Route path="/admin/edit-user" element={
+            <Route path="/admin/edit-user/:id" element={
               <AdminOnlyProtectedRoute 
                 isAuthenticated={isAuthenticated} 
                 userRole={userRole}

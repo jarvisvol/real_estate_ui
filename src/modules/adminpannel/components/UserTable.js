@@ -12,12 +12,6 @@ const UsersTable = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  const handleEditUser = (user) => {
-    // Handle edit user
-    console.log('Edit user:', user);
-    // You can open a modal or navigate to edit page
-  };
-
   if (usersLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -77,7 +71,6 @@ const UsersTable = () => {
               <AgentCard 
                 key={user._id} 
                 user={user} 
-                onEdit={handleEditUser}
                 deleteUser={deleteUser}
               />
             ))

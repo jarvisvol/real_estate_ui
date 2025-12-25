@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-const AgentCard = ({ user, onEdit, deleteUser }) => {
+const AgentCard = ({ user, deleteUser }) => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEdit = () => {
-    navigate('/admin/edit-user');
-    if (onEdit) {
-      onEdit(user);
-    }
+    navigate(`/admin/edit-user/${user._id}`);
   };
 
   const handleDelete = () => {

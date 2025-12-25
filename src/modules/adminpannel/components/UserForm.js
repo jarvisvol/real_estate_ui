@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { addUser, updateUser, fetchUserDetails, clearUserError, resetUserState } from '../store/adminActions';
 
-const UserForm = ({ isEditMode = false }) => {
+const UserForm = ({ isEditMode }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams(); // Get user ID from URL for edit mode
@@ -76,8 +76,8 @@ const UserForm = ({ isEditMode = false }) => {
   // Handle success state
   useEffect(() => {
     if (success) {
-      const message = isEditMode ? 'User updated successfully!' : 'User created successfully!';
-      alert(message);
+      // const message = isEditMode ? 'User updated successfully!' : 'User created successfully!';
+      // alert(message);
       
       // Reset form for add mode only
       if (!isEditMode) {

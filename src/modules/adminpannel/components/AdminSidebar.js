@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../css/AdminSideBar.css';
+import { logoutUser } from '../../auth/store/authActions';
 
 const AdminSidebar = ({
     onSectionChange = () => { },
@@ -97,14 +98,8 @@ const AdminSidebar = ({
     };
 
     const handleLogout = () => {
-        if (onLogout) {
-            onLogout();
-        } else {
-            // Default logout behavior
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
-            navigate('/login');
-        }
+        navigate('/login');
+        logoutUser();
     };
 
     const toggleCollapse = () => {
@@ -137,13 +132,6 @@ const AdminSidebar = ({
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [mobileOpen, onMobileToggle]);
-
-    // Cleanup function to prevent memory leaks
-    useEffect(() => {
-        return () => {
-            // Cleanup if needed
-        };
-    }, []);
 
     return (
         <>

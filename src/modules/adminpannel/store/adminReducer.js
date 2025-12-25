@@ -27,7 +27,15 @@ import {
   UPDATE_USER_FAILURE,
   DELETE_USER_REQUEST,
   DELETE_USER_SUCCESS,
-  DELETE_USER_FAILURE
+  DELETE_USER_FAILURE,
+  ADD_USER_SUCCESS,
+  ADD_USER_REQUEST,
+  ADD_USER_FAILURE,
+  FETCH_USER_DETAILS_REQUEST,
+  FETCH_USER_DETAILS_FAILURE,
+  FETCH_USER_DETAILS_SUCCESS,
+  RESET_USER_STATE,
+  CLEAR_USER_ERROR
 } from './adminActionTypes';
 
 const initialState = {
@@ -51,6 +59,54 @@ const initialState = {
 
 const adminReducer = (state = initialState, action) => {
   switch (action.type) {
+
+    case ADD_USER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        success: false
+      };
+      
+    case ADD_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        users: [...state.users, action.payload],
+        success: true,
+        error: null
+      };
+      
+    case ADD_USER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        success: false
+      };
+
+    case FETCH_USER_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
+      
+    case FETCH_USER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userDetails: action.payload.data || action.payload,
+        error: null
+      };
+      
+    case FETCH_USER_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        userDetails: null,
+        error: action.payload
+      };
     
     case FETCH_PROPERTIES_REQUEST:
       return {
@@ -212,25 +268,28 @@ const adminReducer = (state = initialState, action) => {
     case UPDATE_USER_REQUEST:
       return {
         ...state,
-        userUpdating: true,
-        usersError: null
+        loading: true,
+        error: null,
+        success: false
       };
       
     case UPDATE_USER_SUCCESS:
       return {
         ...state,
-        userUpdating: false,
+        loading: false,
         users: state.users.map(user => 
           user._id === action.payload._id ? action.payload : user
         ),
-        usersError: null
+        error: null,
+        success: true
       };
       
     case UPDATE_USER_FAILURE:
       return {
         ...state,
-        userUpdating: false,
-        usersError: action.payload
+        loading: false,
+        error: action.payload,
+        success: false
       };
       
     case DELETE_USER_REQUEST:
@@ -253,6 +312,27 @@ const adminReducer = (state = initialState, action) => {
         ...state,
         userDeleting: false,
         usersError: action.payload
+      };
+
+    case CLEAR_USER_ERROR:
+      return {
+        ...state,
+        error: null,
+        detailsError: null,
+        usersError: null,
+        success: false,
+        deleteSuccess: false
+      };
+      
+    case RESET_USER_STATE:
+      return {
+        ...initialState,
+        // Keep users list if needed
+        users: state.users,
+        totalUsers: state.totalUsers,
+        totalPages: state.totalPages,
+        currentPage: state.currentPage,
+        limit: state.limit
       };
       
     default:
