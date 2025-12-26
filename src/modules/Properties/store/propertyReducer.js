@@ -25,6 +25,9 @@ import {
 } from './actionTypes';
 
 const initialState = {
+  // Status tracking
+  status: 'IDLE', // Initial status
+
   // Properties list
   properties: [],
   propertyDetails: null,
@@ -34,7 +37,7 @@ const initialState = {
   totalProperties: 0,
   totalPages: 1,
   currentPage: 1,
-  limit: 10, // Changed from 12 to match your API default
+  limit: 10,
 
   // Filters and sorting
   filters: {
@@ -42,7 +45,7 @@ const initialState = {
     minPrice: '',
     maxPrice: '',
     propertyType: '',
-    priceType: 'sale', // sale/rent
+    priceType: 'sale',
     bedrooms: '',
     bathrooms: ''
   },
@@ -73,17 +76,18 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_USER_PROPERTIES_REQUEST:
       return {
         ...state,
+        status: action.type,
         loading: true,
         error: null
       };
 
     case FETCH_USER_PROPERTIES_SUCCESS:
-      // Handle the nested response structure
       const responseData = action.payload?.data?.data || [];
       const paginationData = action.payload?.data || {};
 
       return {
         ...state,
+        status: action.type,
         loading: false,
         properties: responseData,
         totalProperties: paginationData.total || 0,
@@ -96,6 +100,7 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_USER_PROPERTIES_FAILURE:
       return {
         ...state,
+        status: action.type,
         loading: false,
         properties: [],
         totalProperties: 0,
@@ -108,16 +113,17 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_USER_PROPERTY_DETAILS_REQUEST:
       return {
         ...state,
+        status: action.type,
         detailsLoading: true,
         detailsError: null,
         propertyDetails: null
       };
 
     case FETCH_USER_PROPERTY_DETAILS_SUCCESS:
-      // Handle different response structures
       const detailsData = action.payload?.data || action.payload;
       return {
         ...state,
+        status: action.type,
         detailsLoading: false,
         propertyDetails: detailsData,
         detailsError: null
@@ -126,6 +132,7 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_USER_PROPERTY_DETAILS_FAILURE:
       return {
         ...state,
+        status: action.type,
         detailsLoading: false,
         propertyDetails: null,
         detailsError: action.payload
@@ -135,42 +142,42 @@ const propertyReducer = (state = initialState, action) => {
     case FILTER_USER_PROPERTIES:
       return {
         ...state,
+        status: action.type,
         filters: { ...state.filters, ...action.payload },
-        currentPage: 1 // Reset to first page when filtering
+        currentPage: 1
       };
 
     case SORT_USER_PROPERTIES:
       return {
         ...state,
+        status: action.type,
         sortBy: action.payload.sortBy,
         sortOrder: action.payload.sortOrder,
-        currentPage: 1 // Reset to first page when sorting
+        currentPage: 1
       };
 
     // Save property
     case SAVE_PROPERTY_REQUEST:
       return {
         ...state,
+        status: action.type,
         saving: true,
         saveError: null,
         saveSuccess: false
       };
 
     case SAVE_PROPERTY_SUCCESS:
-      // Mark property as saved in properties list
       const updatedProperties = state.properties.map(property =>
         property._id === action.payload.propertyId
           ? { ...property, isSaved: true }
           : property
       );
 
-      // Update property details if it's the current one being viewed
       const updatedPropertyDetails = state.propertyDetails &&
         state.propertyDetails._id === action.payload.propertyId
         ? { ...state.propertyDetails, isSaved: true }
         : state.propertyDetails;
 
-      // Add to saved properties if not already there
       const savedProperty = state.properties.find(p => p._id === action.payload.propertyId);
       const updatedSavedProperties = savedProperty && !state.savedProperties.find(p => p._id === action.payload.propertyId)
         ? [savedProperty, ...state.savedProperties]
@@ -178,6 +185,7 @@ const propertyReducer = (state = initialState, action) => {
 
       return {
         ...state,
+        status: action.type,
         saving: false,
         properties: updatedProperties,
         propertyDetails: updatedPropertyDetails,
@@ -189,6 +197,7 @@ const propertyReducer = (state = initialState, action) => {
     case SAVE_PROPERTY_FAILURE:
       return {
         ...state,
+        status: action.type,
         saving: false,
         saveError: action.payload,
         saveSuccess: false
@@ -198,32 +207,31 @@ const propertyReducer = (state = initialState, action) => {
     case UNSAVE_PROPERTY_REQUEST:
       return {
         ...state,
+        status: action.type,
         unsaving: true,
         saveError: null,
         unsaveSuccess: false
       };
 
     case UNSAVE_PROPERTY_SUCCESS:
-      // Mark property as unsaved in properties list
       const unsavedProperties = state.properties.map(property =>
         property._id === action.payload.propertyId
           ? { ...property, isSaved: false }
           : property
       );
 
-      // Update property details if it's the current one being viewed
       const unsavedPropertyDetails = state.propertyDetails &&
         state.propertyDetails._id === action.payload.propertyId
         ? { ...state.propertyDetails, isSaved: false }
         : state.propertyDetails;
 
-      // Remove from saved properties
       const filteredSavedProperties = state.savedProperties.filter(
         property => property._id !== action.payload.propertyId
       );
 
       return {
         ...state,
+        status: action.type,
         unsaving: false,
         properties: unsavedProperties,
         propertyDetails: unsavedPropertyDetails,
@@ -235,6 +243,7 @@ const propertyReducer = (state = initialState, action) => {
     case UNSAVE_PROPERTY_FAILURE:
       return {
         ...state,
+        status: action.type,
         unsaving: false,
         saveError: action.payload,
         unsaveSuccess: false
@@ -244,15 +253,16 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_SAVED_PROPERTIES_REQUEST:
       return {
         ...state,
+        status: action.type,
         savedLoading: true,
         savedError: null
       };
 
     case FETCH_SAVED_PROPERTIES_SUCCESS:
-      // Handle nested response structure for saved properties too
       const savedResponseData = action.payload?.data?.data || [];
       return {
         ...state,
+        status: action.type,
         savedLoading: false,
         savedProperties: savedResponseData,
         savedError: null
@@ -261,6 +271,7 @@ const propertyReducer = (state = initialState, action) => {
     case FETCH_SAVED_PROPERTIES_FAILURE:
       return {
         ...state,
+        status: action.type,
         savedLoading: false,
         savedProperties: [],
         savedError: action.payload
@@ -270,6 +281,7 @@ const propertyReducer = (state = initialState, action) => {
     case CLEAR_USER_PROPERTY_ERROR:
       return {
         ...state,
+        status: action.type,
         error: null,
         detailsError: null,
         saveError: null,
@@ -281,31 +293,35 @@ const propertyReducer = (state = initialState, action) => {
     case RESET_USER_PROPERTY_STATE:
       return {
         ...initialState,
-        filters: state.filters, // Keep filters
-        sortBy: state.sortBy, // Keep sort settings
+        status: action.type,
+        filters: state.filters,
+        sortBy: state.sortBy,
         sortOrder: state.sortOrder
       };
 
     case CLIENT_CONTACT_REQUEST:
       return {
         ...state,
+        status: action.type,
         loading: true,
         success: false,
         error: null,
       };
 
-    case CLIENT_CONTACT_SUCCESS:
+    case CLIENT_CONTACT_SUCCESS:      
       return {
         ...state,
+        status: action.type,
         loading: false,
         success: true,
-        contactData: action.payload.data,
+        contactData: action.payload.data.data,
         error: null,
       };
 
     case CLIENT_CONTACT_FAILURE:
       return {
         ...state,
+        status: action.type,
         loading: false,
         success: false,
         error: action.payload,
@@ -313,7 +329,10 @@ const propertyReducer = (state = initialState, action) => {
       };
 
     case CLIENT_CONTACT_RESET:
-      return initialState;
+      return {
+        ...initialState,
+        status: action.type
+      };
 
     default:
       return state;

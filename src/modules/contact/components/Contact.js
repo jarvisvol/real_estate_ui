@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import feather from 'feather-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { submitClientContact } from '../../Properties/store/actions';
 import '../css/ContactPage.css';
 
 const ContactPage = () => {
     const dispatch = useDispatch();
+    const {status} = useSelector(state => state.property);
     
     const [contactForm, setContactForm] = useState({
         name: '',
@@ -27,6 +27,21 @@ const ContactPage = () => {
             feather.replace();
         }
     }, []);
+
+    useEffect(()=>{
+      switch(status){
+        case 'CLIENT_CONTACT_SUCCESS':
+          setSubmitLoading(false);
+          setSubmitSuccess(true);
+          break;
+        case 'CLIENT_CONTACT_FAILURE':
+          setSubmitLoading(false);
+          setSubmitSuccess(false);
+          break;
+        default:
+          break;
+      }
+    },[status])
 
     const handleContactChange = (e) => {
         const { name, value } = e.target;
@@ -100,38 +115,7 @@ const ContactPage = () => {
             ...contactForm,
             message: messageWithPurpose
         };
-        
-        try {
-            const result = await dispatch(submitClientContact(contactData));
-            
-            if (result?.success) {
-                setSubmitSuccess(true);
-                setContactForm({
-                    name: '',
-                    email: '',
-                    phoneNumber: '',
-                    message: '',
-                    purpose: activeTab === 'list-property' ? 'list_property' : 
-                            activeTab === 'inquiry' ? 'inquiry' : 'general'
-                });
-                
-                // Auto-hide success message after 5 seconds
-                setTimeout(() => {
-                    setSubmitSuccess(false);
-                }, 5000);
-            } else {
-                setFormErrors({
-                    submit: result?.error || 'Failed to submit contact form. Please try again.'
-                });
-            }
-        } catch (error) {
-            console.error('Error submitting contact form:', error);
-            setFormErrors({
-                submit: 'Network error. Please check your connection and try again.'
-            });
-        } finally {
-            setSubmitLoading(false);
-        }
+        dispatch(submitClientContact(contactData));
     };
 
     const contactInfo = [
@@ -215,13 +199,6 @@ const ContactPage = () => {
                                 <i data-feather="home" className="button-icon"></i>
                                 List Your Property
                             </button>
-                            <a 
-                                href="tel:+919876543210" 
-                                className="cta-button secondary"
-                            >
-                                <i data-feather="phone" className="button-icon"></i>
-                                Call Now
-                            </a>
                         </div>
                     </div>
                 </section>

@@ -169,9 +169,6 @@ const About = () => {
                                     <Link to="/contact" className="cta-button primary">
                                         Contact Us
                                     </Link>
-                                    <Link to="/careers" className="cta-button secondary">
-                                        Join Our Team
-                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -264,12 +261,6 @@ const About = () => {
                                     </div>
                                 </div>
                             ))}
-                        </div>
-                        <div className="team-cta">
-                            <Link to="/team" className="view-team-button">
-                                Meet Full Team
-                                <i data-feather="arrow-right"></i>
-                            </Link>
                         </div>
                     </div>
                 </section>

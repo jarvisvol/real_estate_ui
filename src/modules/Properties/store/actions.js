@@ -222,17 +222,15 @@ export const submitClientContact = (contactData) => async (dispatch) => {
   try {
     const response = await authApi.post('/client-contacts', contactData);
 
-    const data = await response.json();
-
-    if (data.status === 'success') {
+    if (response.data.status === 'success') {
       dispatch({
         type: CLIENT_CONTACT_SUCCESS,
-        payload: data,
+        payload: response.data,
       });
     } else {
       dispatch({
         type: CLIENT_CONTACT_FAILURE,
-        payload: data.message || 'Failed to submit contact form',
+        payload: response.data.message || 'Failed to submit contact form',
       });
     }
   } catch (error) {

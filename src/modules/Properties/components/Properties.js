@@ -18,7 +18,7 @@ const PropertiesPage = () => {
         totalPages,
         totalProperties,
         limit,
-        filters: reduxFilters
+        filters: reduxFilters,
     } = useSelector(state => state.property);
     
     const [localFilters, setLocalFilters] = useState({
@@ -54,7 +54,7 @@ const PropertiesPage = () => {
             ...filtersFromURL
         }));
         
-    }, [location.search, dispatch, limit]);
+    }, [location.search, dispatch, limit, searchParams]);
 
     // Sync local filters with Redux filters
     useEffect(() => {
@@ -410,22 +410,6 @@ const PropertiesPage = () => {
                         <span className="highlight">{totalProperties || 0}</span> properties
                         {localFilters.city && ` in ${localFilters.city}`}
                     </p>
-                    <div className="view-toggle">
-                        <button 
-                            className="view-toggle-button active"
-                            aria-label="Grid view"
-                            disabled={loading}
-                        >
-                            <i data-feather="grid"></i>
-                        </button>
-                        <button 
-                            className="view-toggle-button"
-                            aria-label="List view"
-                            disabled={loading}
-                        >
-                            <i data-feather="list"></i>
-                        </button>
-                    </div>
                 </div>
 
                 {/* Property Grid */}

@@ -11,7 +11,13 @@ const HomePage = () => {
     const navigate = useNavigate();
 
     // Get properties from Redux store
-    const { properties, loading, totalProperties } = useSelector(state => state.property || {});
+    const { 
+        properties, 
+        loading, 
+        totalProperties, 
+        status, 
+        error, 
+    } = useSelector(state => state.property);
 
     const [searchFilters, setSearchFilters] = useState({
         city: '',
@@ -27,8 +33,7 @@ const HomePage = () => {
     });
 
     const [formErrors, setFormErrors] = useState({});
-    const [submitLoading, setSubmitLoading] = useState(false);
-    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [contactSubmitSuccess, setContactSubmitSuccess] = useState(false);
 
     useEffect(() => {
         // Initialize feather icons
@@ -39,6 +44,36 @@ const HomePage = () => {
         // Fetch featured properties on load (first 3 properties)
         dispatch(fetchUserProperties({ page: 1, limit: 3 }));
     }, [dispatch]);
+
+    useEffect(() => {
+        // Handle contact form submission status
+        if (status === 'CLIENT_CONTACT_SUCCESS') {
+            setContactSubmitSuccess(true);
+            // Reset form on success
+            setContactForm({
+                name: '',
+                email: '',
+                phoneNumber: '',
+                message: ''
+            });
+            setFormErrors({});
+            
+            // Auto-hide success message after 5 seconds
+            const timer = setTimeout(() => {
+                setContactSubmitSuccess(false);
+            }, 5000);
+            
+            return () => clearTimeout(timer);
+        }
+        
+        // Handle contact form error
+        if (status === 'CLIENT_CONTACT_FAILURE' && error) {
+            setFormErrors(prev => ({
+                ...prev,
+                submit: error.message || 'Failed to send message. Please try again.'
+            }));
+        }
+    }, [status, error]);
 
     const handleSearchChange = (e) => {
         const { name, value } = e.target;
@@ -67,8 +102,6 @@ const HomePage = () => {
 
     const handleContactChange = (e) => {
         const { name, value } = e.target;
-        console.log(name, value);
-        
         setContactForm(prev => ({
             ...prev,
             [name]: value
@@ -79,6 +112,14 @@ const HomePage = () => {
             setFormErrors(prev => ({
                 ...prev,
                 [name]: ''
+            }));
+        }
+        
+        // Clear submit error if it exists
+        if (formErrors.submit) {
+            setFormErrors(prev => ({
+                ...prev,
+                submit: ''
             }));
         }
     };
@@ -120,8 +161,10 @@ const HomePage = () => {
             return;
         }
         setFormErrors({});
-        setSubmitLoading(true);
-        dispatch(submitClientContact(contactForm))
+        setContactSubmitSuccess(false);
+        
+        // Dispatch the contact action
+        dispatch(submitClientContact(contactForm));
     };
 
     // Format price for display
@@ -198,6 +241,9 @@ const HomePage = () => {
         'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai',
         'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow'
     ];
+
+    // Check if contact form is being submitted
+    const isContactSubmitting = status === 'CLIENT_CONTACT_REQUEST';
 
     return (
         <div className="home-page">
@@ -329,7 +375,7 @@ const HomePage = () => {
                         </Link>
                     </div>
 
-                    {loading ? (
+                    {loading && status === 'FETCH_USER_PROPERTIES_REQUEST' ? (
                         <div className="loading-container">
                             <div className="loading-spinner">
                                 <i data-feather="loader" className="animate-spin"></i>
@@ -428,7 +474,7 @@ const HomePage = () => {
                             </div>
                         </div>
                         <div className="contact-form-container">
-                            {submitSuccess && (
+                            {contactSubmitSuccess && (
                                 <div className="success-message">
                                     <i data-feather="check-circle" className="success-icon"></i>
                                     <div>
@@ -448,7 +494,7 @@ const HomePage = () => {
                                         onChange={handleContactChange}
                                         className={`form-input ${formErrors.name ? 'input-error' : ''}`}
                                         placeholder="Enter your full name"
-                                        disabled={submitLoading}
+                                        disabled={isContactSubmitting}
                                     />
                                     {formErrors.name && (
                                         <p className="error-message">{formErrors.name}</p>
@@ -464,7 +510,7 @@ const HomePage = () => {
                                         onChange={handleContactChange}
                                         className={`form-input ${formErrors.email ? 'input-error' : ''}`}
                                         placeholder="your@email.com"
-                                        disabled={submitLoading}
+                                        disabled={isContactSubmitting}
                                     />
                                     {formErrors.email && (
                                         <p className="error-message">{formErrors.email}</p>
@@ -481,7 +527,7 @@ const HomePage = () => {
                                         className={`form-input ${formErrors.phoneNumber ? 'input-error' : ''}`}
                                         placeholder="9876543210"
                                         maxLength="10"
-                                        disabled={submitLoading}
+                                        disabled={isContactSubmitting}
                                     />
                                     {formErrors.phoneNumber && (
                                         <p className="error-message">{formErrors.phoneNumber}</p>
@@ -497,7 +543,7 @@ const HomePage = () => {
                                         rows="4"
                                         className={`form-input ${formErrors.message ? 'input-error' : ''}`}
                                         placeholder="Tell us about your property requirements..."
-                                        disabled={submitLoading}
+                                        disabled={isContactSubmitting}
                                     ></textarea>
                                     {formErrors.message && (
                                         <p className="error-message">{formErrors.message}</p>
@@ -514,9 +560,9 @@ const HomePage = () => {
                                 <button
                                     type="submit"
                                     className="submit-button"
-                                    disabled={submitLoading}
+                                    disabled={isContactSubmitting}
                                 >
-                                    {submitLoading ? (
+                                    {isContactSubmitting ? (
                                         <>
                                             <i data-feather="loader" className="animate-spin button-icon"></i>
                                             Sending...
