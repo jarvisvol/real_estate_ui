@@ -35,7 +35,7 @@ const Navbar = () => {
                             About
                         </Link>
                         <Link to="/contact" className={isActive('/contact')}>
-                            Contact
+                            Contact Us
                         </Link>
                         {
                             user && user.role === 'admin' && (

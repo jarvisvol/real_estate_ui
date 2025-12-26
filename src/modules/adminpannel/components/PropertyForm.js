@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  createProperty, 
+import {
+  createProperty,
   updateProperty,
-  clearPropertyError, 
-  resetPropertyState 
+  clearPropertyError,
+  resetPropertyState
 } from '../store/adminActions';
-import {fetchUserPropertyDetails} from '../../Properties/store/actions'
+import { fetchUserPropertyDetails } from '../../Properties/store/actions'
 
 const PropertyForm = ({ isEditMode = false }) => {
   const dispatch = useDispatch();
@@ -79,7 +79,7 @@ const PropertyForm = ({ isEditMode = false }) => {
         nearestBusStandName: propertyDetails.distanceFromTransport?.busStand?.nearestBusStandName || '',
         busDistance: propertyDetails.distanceFromTransport?.busStand?.distance?.toString() || ''
       };
-      
+
       setPropertyData(formattedData);
       setExistingImages(propertyDetails.images || []);
     }
@@ -88,12 +88,6 @@ const PropertyForm = ({ isEditMode = false }) => {
   // Handle success state
   useEffect(() => {
     if (success) {
-      if (isEditMode) {
-        alert('Property updated successfully!');
-      } else {
-        alert('Property created successfully!');
-      }
-      
       // Reset form after successful creation/update
       setPropertyData({
         streetAddress: '',
@@ -117,7 +111,7 @@ const PropertyForm = ({ isEditMode = false }) => {
       setRemovedImages([]);
       setFormErrors({});
       dispatch(resetPropertyState());
-      
+
       // Navigate back to properties list
       navigate('/admin/properties');
     }
@@ -140,14 +134,14 @@ const PropertyForm = ({ isEditMode = false }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Validate file size (max 5MB)
     const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
-    
+
     if (validFiles.length !== files.length) {
       alert('Some files exceed 5MB limit');
     }
-    
+
     setSelectedImages(prev => [...prev, ...validFiles]);
   };
 
@@ -174,7 +168,7 @@ const PropertyForm = ({ isEditMode = false }) => {
 
   const validateForm = () => {
     const errors = {};
-    
+
     // Required fields validation
     if (!propertyData.streetAddress.trim()) {
       errors.streetAddress = 'Street address is required';
@@ -191,75 +185,54 @@ const PropertyForm = ({ isEditMode = false }) => {
     if (!propertyData.country.trim()) {
       errors.country = 'Country is required';
     }
-    
+
     // Price validation
     if (!propertyData.amount || parseFloat(propertyData.amount) <= 0) {
       errors.amount = 'Valid price is required';
     }
-    
+
     // Numeric field validation
     if (propertyData.plotArea && parseFloat(propertyData.plotArea) < 0) {
       errors.plotArea = 'Plot area must be positive';
     }
-    
+
     if (propertyData.builtUpArea && parseFloat(propertyData.builtUpArea) < 0) {
       errors.builtUpArea = 'Built-up area must be positive';
     }
-    
+
     if (propertyData.railwayDistance && parseFloat(propertyData.railwayDistance) < 0) {
       errors.railwayDistance = 'Distance must be positive';
     }
-    
+
     if (propertyData.busDistance && parseFloat(propertyData.busDistance) < 0) {
       errors.busDistance = 'Distance must be positive';
     }
-    
+
     // Image validation - only for add mode
     if (!isEditMode && selectedImages.length === 0) {
       errors.images = 'At least one image is required';
     }
-    
+
     return errors;
   };
 
   const preparePropertyData = () => {
     const propertyDataToSend = {
-      propertyAddress: {
-        streetAddress: propertyData.streetAddress,
-        city: propertyData.city,
-        state: propertyData.state,
-        zipCode: propertyData.zipCode,
-        country: propertyData.country
-      },
-      price: {
-        amount: parseFloat(propertyData.amount),
-        currency: propertyData.currency,
-        priceType: propertyData.priceType,
-        pricePerSquareUnit: propertyData.pricePerSquareUnit ? 
-          parseFloat(propertyData.pricePerSquareUnit) : null
-      },
-      dimensions: {
-        plotArea: propertyData.plotArea ? {
-          value: parseFloat(propertyData.plotArea),
-          unit: 'sqft'
-        } : undefined,
-        builtUpArea: propertyData.builtUpArea ? {
-          value: parseFloat(propertyData.builtUpArea),
-          unit: 'sqft'
-        } : undefined
-      },
-      distanceFromTransport: {
-        railwayStation: propertyData.nearestStationName || propertyData.railwayDistance ? {
-          distance: propertyData.railwayDistance ? parseFloat(propertyData.railwayDistance) : null,
-          unit: 'km',
-          nearestStationName: propertyData.nearestStationName || null
-        } : undefined,
-        busStand: propertyData.nearestBusStandName || propertyData.busDistance ? {
-          distance: propertyData.busDistance ? parseFloat(propertyData.busDistance) : null,
-          unit: 'km',
-          nearestBusStandName: propertyData.nearestBusStandName || null
-        } : undefined
-      },
+      streetAddress: propertyData.streetAddress,
+      city: propertyData.city,
+      state: propertyData.state,
+      zipCode: propertyData.zipCode,
+      country: propertyData.country,
+      amount: parseFloat(propertyData.amount),
+      currency: propertyData.currency,
+      priceType: propertyData.priceType,
+      pricePerSquareUnit: propertyData.pricePerSquareUnit,
+      plotArea: propertyData.plotArea,
+      builtUpArea: propertyData.builtUpArea,
+      nearestStationName: propertyData.nearestStationName || null,
+      nearestBusStandName: propertyData.nearestBusStandName || null,
+      railwayDistance: propertyData.railwayDistance,
+      busDistance: propertyData.busDistance,
       lastUpdatedBy: user._id
     };
 
@@ -280,20 +253,20 @@ const PropertyForm = ({ isEditMode = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Clear previous errors
     dispatch(clearPropertyError());
-    
+
     // Validate form
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-    
+
     // Prepare data for API
     const propertyDataToSend = preparePropertyData();
-    
+
     let result;
     if (isEditMode) {
       // Dispatch update property action
@@ -304,7 +277,6 @@ const PropertyForm = ({ isEditMode = false }) => {
       // Dispatch create property action
       result = await dispatch(createProperty(propertyDataToSend, selectedImages));
     }
-    
     if (result?.success) {
       // Success is handled in useEffect
     }
@@ -330,7 +302,7 @@ const PropertyForm = ({ isEditMode = false }) => {
           <h1 className="text-3xl font-bold text-gray-800">
             {isEditMode ? 'Edit Property' : 'Add New Property'}
           </h1>
-          
+
           {/* Success Message */}
           {success && (
             <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg">
@@ -338,14 +310,14 @@ const PropertyForm = ({ isEditMode = false }) => {
             </div>
           )}
         </div>
-        
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Property Address Section */}
           <section className="space-y-4">
@@ -358,8 +330,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.streetAddress}</span>
                   )}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="streetAddress"
                   value={propertyData.streetAddress}
                   onChange={handleChange}
@@ -367,7 +339,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   City *
@@ -375,8 +347,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.city}</span>
                   )}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="city"
                   value={propertyData.city}
                   onChange={handleChange}
@@ -384,7 +356,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   State/Province *
@@ -392,8 +364,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.state}</span>
                   )}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="state"
                   value={propertyData.state}
                   onChange={handleChange}
@@ -401,7 +373,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   ZIP/Postal Code *
@@ -409,8 +381,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.zipCode}</span>
                   )}
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="zipCode"
                   value={propertyData.zipCode}
                   onChange={handleChange}
@@ -418,13 +390,13 @@ const PropertyForm = ({ isEditMode = false }) => {
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Country *
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="country"
                   value={propertyData.country}
                   onChange={handleChange}
@@ -447,7 +419,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   )}
                 </label>
                 <div className="relative">
-                  <select 
+                  <select
                     name="currency"
                     value={propertyData.currency}
                     onChange={handleChange}
@@ -458,8 +430,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <option value="EUR">€</option>
                     <option value="GBP">£</option>
                   </select>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     name="amount"
                     value={propertyData.amount}
                     onChange={handleChange}
@@ -470,10 +442,10 @@ const PropertyForm = ({ isEditMode = false }) => {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price Type</label>
-                <select 
+                <select
                   name="priceType"
                   value={propertyData.priceType}
                   onChange={handleChange}
@@ -484,12 +456,12 @@ const PropertyForm = ({ isEditMode = false }) => {
                   <option value="lease">For Lease</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price Per Square Unit</label>
                 <div className="relative">
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     name="pricePerSquareUnit"
                     value={propertyData.pricePerSquareUnit}
                     onChange={handleChange}
@@ -514,8 +486,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.plotArea}</span>
                   )}
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="plotArea"
                   value={propertyData.plotArea}
                   onChange={handleChange}
@@ -524,7 +496,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   step="0.01"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Built-up Area (sqft)
@@ -532,8 +504,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.builtUpArea}</span>
                   )}
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="builtUpArea"
                   value={propertyData.builtUpArea}
                   onChange={handleChange}
@@ -551,15 +523,15 @@ const PropertyForm = ({ isEditMode = false }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nearest Railway Station</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="nearestStationName"
                   value={propertyData.nearestStationName}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Distance from Station (km)
@@ -567,8 +539,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.railwayDistance}</span>
                   )}
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.1"
                   name="railwayDistance"
                   value={propertyData.railwayDistance}
@@ -577,18 +549,18 @@ const PropertyForm = ({ isEditMode = false }) => {
                   min="0"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nearest Bus Stand</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="nearestBusStandName"
                   value={propertyData.nearestBusStandName}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Distance from Bus Stand (km)
@@ -596,8 +568,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <span className="text-red-500 text-sm ml-2">{formErrors.busDistance}</span>
                   )}
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.1"
                   name="busDistance"
                   value={propertyData.busDistance}
@@ -628,17 +600,17 @@ const PropertyForm = ({ isEditMode = false }) => {
                     <p className="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
                     <p className="text-xs text-gray-500">PNG, JPG, JPEG (Max 5MB each)</p>
                   </div>
-                  <input 
-                    id="property-images" 
-                    type="file" 
-                    className="hidden" 
-                    multiple 
+                  <input
+                    id="property-images"
+                    type="file"
+                    className="hidden"
+                    multiple
                     accept="image/*"
                     onChange={handleImageUpload}
                   />
                 </label>
               </div>
-              
+
               {/* Existing Images (Edit mode only) */}
               {isEditMode && existingImages.length > 0 && (
                 <div className="mt-4">
@@ -646,8 +618,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                   <div className="flex flex-wrap gap-2">
                     {existingImages.map((image, index) => (
                       <div key={image._id || index} className="relative w-24 h-24 border rounded-lg overflow-hidden">
-                        <img 
-                          src={image.url} 
+                        <img
+                          src={image.url}
                           alt={image.caption || `Image ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
@@ -663,7 +635,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   </div>
                 </div>
               )}
-              
+
               {/* Removed Images (Edit mode only) */}
               {isEditMode && removedImages.length > 0 && (
                 <div className="mt-4">
@@ -671,8 +643,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                   <div className="flex flex-wrap gap-2">
                     {removedImages.map((image, index) => (
                       <div key={image._id || index} className="relative w-24 h-24 border border-red-300 rounded-lg overflow-hidden opacity-50">
-                        <img 
-                          src={image.url} 
+                        <img
+                          src={image.url}
                           alt={`Removed ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
@@ -688,7 +660,7 @@ const PropertyForm = ({ isEditMode = false }) => {
                   </div>
                 </div>
               )}
-              
+
               {/* New Images */}
               {selectedImages.length > 0 && (
                 <div className="mt-4">
@@ -696,8 +668,8 @@ const PropertyForm = ({ isEditMode = false }) => {
                   <div className="flex flex-wrap gap-2">
                     {selectedImages.map((image, index) => (
                       <div key={index} className="relative w-24 h-24 border rounded-lg overflow-hidden">
-                        <img 
-                          src={URL.createObjectURL(image)} 
+                        <img
+                          src={URL.createObjectURL(image)}
                           alt={`Preview ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
@@ -718,15 +690,15 @@ const PropertyForm = ({ isEditMode = false }) => {
 
           {/* Submit Section */}
           <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleCancel}
               className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-medium transition"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center gap-2"
               disabled={isEditMode && loading}
             >

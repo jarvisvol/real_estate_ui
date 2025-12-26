@@ -4,11 +4,16 @@ import Navbar from '../../layout/components/Navbar';
 import CustomFooter from '../../layout/components/CustomFooter';
 import feather from 'feather-icons';
 import '../../auth/css/RegisterPage.css';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../store/authActions';
+import Loader from '../../common/components/Loder';
 
 const RegisterPage = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        fullName: '',
+        name: '',
+        phoneNumber: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -96,10 +101,10 @@ const RegisterPage = () => {
         const newErrors = {};
 
         // Full Name validation
-        if (!formData.fullName.trim()) {
-            newErrors.fullName = 'Full name is required';
-        } else if (formData.fullName.trim().length < 2) {
-            newErrors.fullName = 'Name must be at least 2 characters';
+        if (!formData.name.trim()) {
+            newErrors.name = 'Name is required';
+        } else if (formData.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
         }
 
         // Email validation
@@ -145,28 +150,8 @@ const RegisterPage = () => {
         setLoading(true);
 
         try {
-            // Simulate API call delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // In a real app, this would be an API call:
-            // const response = await fetch('/api/register', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(formData)
-            // });
-
-            // Simulate successful registration
-            const mockResponse = {
-                success: true,
-                message: 'Registration successful!',
-                user: {
-                    id: 1,
-                    name: formData.fullName,
-                    email: formData.email
-                }
-            };
-
-            if (mockResponse.success) {
+            const response = await dispatch(registerUser(formData));
+            if (response.payload.success) {
                 // Show success message
                 alert('Registration successful! Redirecting to login...');
                 
@@ -198,6 +183,7 @@ const RegisterPage = () => {
 
     return (
         <div className="register-page">
+            <Loader loading={loading} />
             <Navbar />
             
             <main className="register-container">
@@ -228,17 +214,42 @@ const RegisterPage = () => {
                                 </span>
                                 <input
                                     type="text"
-                                    id="fullName"
-                                    name="fullName"
-                                    value={formData.fullName}
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
                                     onChange={handleChange}
-                                    className={`form-input-register ${errors.fullName ? 'input-error' : ''}`}
+                                    className={`form-input-register ${errors.name ? 'input-error' : ''}`}
                                     placeholder="John Doe"
                                     autoComplete="name"
                                 />
                             </div>
-                            {errors.fullName && (
-                                <p className="error-message">{errors.fullName}</p>
+                            {errors.name && (
+                                <p className="error-message">{errors.name}</p>
+                            )}
+                        </div>
+
+                        {/* Full phone number Input */}
+                        <div className="form-group">
+                            <label htmlFor="phone" className="form-label">
+                                Phone Number
+                            </label>
+                            <div className="input-container">
+                                <span className="input-icon">
+                                    <i data-feather="phone"></i>
+                                </span>
+                                <input
+                                    type="number"
+                                    id="phone"
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
+                                    onChange={handleChange}
+                                    className={`form-input-register ${errors.phone ? 'input-error' : ''}`}
+                                    placeholder="Phone Number"
+                                    autoComplete="phone"
+                                />
+                            </div>
+                            {errors.name && (
+                                <p className="error-message">{errors.name}</p>
                             )}
                         </div>
 

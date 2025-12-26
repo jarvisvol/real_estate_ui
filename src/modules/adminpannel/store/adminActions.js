@@ -151,7 +151,7 @@ export const createProperty = (propertyData, images) => {
       // Create FormData for file upload
       const formData = new FormData();
 
-      // Add property data as JSON string
+      // Add property data as JSON string      
       formData.append('property', JSON.stringify(propertyData));
 
       // Add images
