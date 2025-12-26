@@ -758,3 +758,55 @@ textarea:focus-visible {
         border: 1px solid #E5E7EB;
     }
 }
+
+/* Distance Information */
+.distance-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.distance-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.distance-icon {
+    width: 40px;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.distance-icon i {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+.distance-text {
+    flex: 1;
+}
+
+.distance-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+}
+
+.distance-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+}

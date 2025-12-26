@@ -666,3 +666,105 @@ select:focus-visible {
     margin-left: auto;
     margin-right: auto;
 }
+
+/* Active filters display */
+.active-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.active-filters-label {
+    font-weight: 600;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 20px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.filter-tag-icon {
+    width: 12px;
+    height: 12px;
+    color: #6b7280;
+}
+
+/* Pagination dots */
+.pagination-dots {
+    padding: 8px 12px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* No properties message */
+.no-properties-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #e2e8f0;
+}
+
+.no-properties-icon {
+    width: 64px;
+    height: 64px;
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+.no-properties-message h3 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.no-properties-message p {
+    color: #64748b;
+    margin-bottom: 20px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Property grid fixes */
+.properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+/* Loading spinner animation */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Filter icons */
+.filter-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: middle;
+}

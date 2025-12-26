@@ -8,11 +8,11 @@ const PropertyViewPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
+
     // Get property data from Redux store - UPDATED selector
-    const { propertyDetails, detailsLoading, detailsError } = useSelector((state) =>  state.property );
+    const { propertyDetails, detailsLoading, detailsError } = useSelector((state) => state.property);
     // Choose the correct slice name based on your Redux store structure
-    
+
     const [saved, setSaved] = useState(false);
     const [property, setProperty] = useState(null);
 
@@ -21,7 +21,7 @@ const PropertyViewPage = () => {
             // Fetch property data from Redux action
             dispatch(fetchUserPropertyDetails(id));
         }
-        
+
         // Check if property is saved
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
         setSaved(savedProperties.includes(id));
@@ -36,7 +36,7 @@ const PropertyViewPage = () => {
 
     const handleSaveProperty = () => {
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
-        
+
         if (!savedProperties.includes(id)) {
             savedProperties.push(id);
             localStorage.setItem('savedProperties', JSON.stringify(savedProperties));
@@ -66,20 +66,6 @@ const PropertyViewPage = () => {
         navigate(`/schedule-tour/${id}`);
     };
 
-    // const handleContactAgent = () => {
-    //     // Open contact form or modal
-    //     const agentPhone = property?.createdBy?.phoneNumber;
-    //     const agentEmail = property?.createdBy?.email;
-        
-    //     if (agentPhone) {
-    //         window.location.href = `tel:${agentPhone}`;
-    //     } else if (agentEmail) {
-    //         window.location.href = `mailto:${agentEmail}`;
-    //     } else {
-    //         alert('Agent contact information not available');
-    //     }
-    // };
-
     if (detailsLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -99,7 +85,7 @@ const PropertyViewPage = () => {
                     <p className="text-gray-600 mb-6">
                         {detailsError || "The property you're looking for doesn't exist or has been removed."}
                     </p>
-                    <button 
+                    <button
                         onClick={handleBack}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
                     >
@@ -205,7 +191,7 @@ const PropertyViewPage = () => {
                                 </span>
                             </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-3">
                             <button
                                 onClick={handleSaveProperty}
@@ -216,7 +202,7 @@ const PropertyViewPage = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                                 </svg>
                             </button>
-                            
+
                             <button
                                 onClick={handleShareProperty}
                                 className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
@@ -233,12 +219,11 @@ const PropertyViewPage = () => {
                         <div className="text-2xl font-bold text-blue-600">
                             {property?.price?.currency || '₹'}{property?.price?.amount?.toLocaleString() || '0'}
                         </div>
-                        
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                            property?.price?.priceType === 'sale' 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-blue-100 text-blue-800'
-                        }`}>
+
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${property?.price?.priceType === 'sale'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-blue-100 text-blue-800'
+                            }`}>
                             {property?.price?.priceType === 'sale' ? 'For Sale' : 'For Rent'}
                         </span>
                     </div>
@@ -250,8 +235,8 @@ const PropertyViewPage = () => {
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="h-64 md:h-96 bg-gray-100 flex items-center justify-center">
                                 {property?.images?.[0]?.url ? (
-                                    <img 
-                                        src={property.images[0].url} 
+                                    <img
+                                        src={property.images[0].url}
                                         alt="Property"
                                         className="w-full h-full object-cover"
                                     />
@@ -261,15 +246,15 @@ const PropertyViewPage = () => {
                                     </svg>
                                 )}
                             </div>
-                            
+
                             {/* Thumbnail Gallery */}
                             {property?.images && property.images.length > 1 && (
                                 <div className="p-4 border-t border-gray-200">
                                     <div className="flex space-x-2 overflow-x-auto">
                                         {property.images.map((image, index) => (
                                             <div key={index} className="flex-shrink-0 w-20 h-20 border rounded-lg overflow-hidden">
-                                                <img 
-                                                    src={image.url} 
+                                                <img
+                                                    src={image.url}
                                                     alt={`Thumbnail ${index + 1}`}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -298,7 +283,7 @@ const PropertyViewPage = () => {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {property?.dimensions?.builtUpArea?.value && (
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
@@ -367,7 +352,7 @@ const PropertyViewPage = () => {
                                     <p className="text-sm text-gray-500">Property Owner</p>
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-3">
                                 {property?.createdBy?.phoneNumber && (
                                     <button
@@ -380,7 +365,7 @@ const PropertyViewPage = () => {
                                         Call Owner
                                     </button>
                                 )}
-                                
+
                                 {property?.createdBy?.email && (
                                     <button
                                         onClick={() => window.location.href = `mailto:${property.createdBy.email}`}
@@ -392,7 +377,7 @@ const PropertyViewPage = () => {
                                         Email Owner
                                     </button>
                                 )}
-                                
+
                                 <button
                                     onClick={handleScheduleTour}
                                     className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium"
@@ -416,6 +401,65 @@ const PropertyViewPage = () => {
                             With a plot area of ${property?.dimensions?.plotArea?.value || '0'} ${property?.dimensions?.plotArea?.unit || 'sqft'}, 
                             it offers great potential for development or residential use.`}
                         </p>
+                    </div>
+                </div>
+
+                <div className="distance-info">
+                    <div className="distance-item">
+                        <div className="distance-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-6-3-6H5C3.3 4 2 5.3 2 7v10c0 .6.4 1 1 1h2"></path>
+                                <circle cx="7" cy="17" r="2"></circle>
+                                <path d="M9 17h6"></path>
+                                <circle cx="17" cy="17" r="2"></circle>
+                            </svg>
+                        </div>
+                        <div className="distance-text">
+                            <div className="distance-label">Bus Stand</div>
+                            <div className="distance-value">{9}</div>
+                        </div>
+                    </div>
+
+                    <div className="distance-item">
+                        <div className="distance-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                <path d="M2 8h20"></path>
+                                <path d="M6 4v4"></path>
+                                <path d="M18 4v4"></path>
+                            </svg>
+                        </div>
+                        <div className="distance-text">
+                            <div className="distance-label">Railway Station</div>
+                            <div className="distance-value">{9}</div>
+                        </div>
+                    </div>
+
+                    <div className="distance-item">
+                        <div className="distance-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <div className="distance-text">
+                            <div className="distance-label">Airport</div>
+                            <div className="distance-value">{89}</div>
+                        </div>
+                    </div>
+
+                    <div className="distance-item">
+                        <div className="distance-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                        </div>
+                        <div className="distance-text">
+                            <div className="distance-label">Shopping Mall</div>
+                            <div className="distance-value">{90}</div>
+                        </div>
                     </div>
                 </div>
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import PropertyCard from '../../common/components/PropertyCard';
 import '../css/Properties.css';
 import feather from 'feather-icons';
@@ -7,6 +8,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 const PropertiesPage = () => {
     const dispatch = useDispatch();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const location = useLocation();
     
     const { 
         properties: propertyData, 
@@ -25,20 +28,43 @@ const PropertiesPage = () => {
         sortBy: 'createdAt'
     });
 
-    // Initialize with Redux filters if they exist
+    // Read query parameters from URL on component mount and when URL changes
+    useEffect(() => {
+        const city = searchParams.get('city') || '';
+        const minPrice = searchParams.get('minPrice') || '';
+        const maxPrice = searchParams.get('maxPrice') || '';
+        const propertyType = searchParams.get('propertyType') || '';
+        
+        const filtersFromURL = {
+            city,
+            minPrice,
+            maxPrice,
+            propertyType,
+            sortBy: 'createdAt'
+        };
+        
+        // Update local filters with URL params
+        setLocalFilters(filtersFromURL);
+        
+        // Update Redux filters and fetch properties
+        dispatch(filterUserProperties(filtersFromURL));
+        dispatch(fetchUserProperties({
+            page: 1,
+            limit: limit,
+            ...filtersFromURL
+        }));
+        
+    }, [location.search, dispatch, limit]);
+
+    // Sync local filters with Redux filters
     useEffect(() => {
         if (reduxFilters) {
-            setLocalFilters(reduxFilters);
+            setLocalFilters(prev => ({
+                ...prev,
+                ...reduxFilters
+            }));
         }
     }, [reduxFilters]);
-
-    useEffect(() => {
-        dispatch(fetchUserProperties({
-            page: currentPage,
-            limit: limit,
-            ...reduxFilters
-        }));
-    }, [dispatch, currentPage, limit, reduxFilters]);
 
     useEffect(() => {
         // Initialize feather icons
@@ -49,10 +75,12 @@ const PropertiesPage = () => {
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        setLocalFilters(prev => ({
-            ...prev,
+        const updatedFilters = {
+            ...localFilters,
             [name]: value
-        }));
+        };
+        
+        setLocalFilters(updatedFilters);
     };
 
     const handleSearchChange = (e) => {
@@ -63,8 +91,19 @@ const PropertiesPage = () => {
         }));
     };
 
-
     const handleApplyFilters = () => {
+        // Update URL with current filters
+        const params = new URLSearchParams();
+        
+        if (localFilters.city) params.set('city', localFilters.city);
+        if (localFilters.minPrice) params.set('minPrice', localFilters.minPrice);
+        if (localFilters.maxPrice) params.set('maxPrice', localFilters.maxPrice);
+        if (localFilters.propertyType) params.set('propertyType', localFilters.propertyType);
+        
+        // Update URL without page reload
+        setSearchParams(params);
+        
+        // Dispatch filters to Redux and fetch properties
         dispatch(filterUserProperties(localFilters));
         dispatch(fetchUserProperties({
             page: 1, // Reset to first page when applying filters
@@ -78,8 +117,14 @@ const PropertiesPage = () => {
             city: '',
             minPrice: '',
             maxPrice: '',
+            propertyType: '',
             sortBy: 'createdAt'
         };
+        
+        // Clear URL parameters
+        setSearchParams(new URLSearchParams());
+        
+        // Reset filters
         setLocalFilters(resetFilters);
         dispatch(filterUserProperties(resetFilters));
         dispatch(fetchUserProperties({
@@ -93,7 +138,7 @@ const PropertiesPage = () => {
         dispatch(fetchUserProperties({
             page: page,
             limit: limit,
-            ...reduxFilters
+            ...localFilters // Use local filters (which should match URL)
         }));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -132,8 +177,34 @@ const PropertiesPage = () => {
             </button>
         );
 
+        // Calculate start and end pages for better pagination
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // Add first page if needed
+        if (startPage > 1) {
+            pages.push(
+                <button
+                    key={1}
+                    onClick={() => handlePageChange(1)}
+                    className="pagination-number"
+                    disabled={loading}
+                >
+                    1
+                </button>
+            );
+            if (startPage > 2) {
+                pages.push(<span key="dots1" className="pagination-dots">...</span>);
+            }
+        }
+
         // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
+        for (let i = startPage; i <= endPage; i++) {
             pages.push(
                 <button
                     key={i}
@@ -142,6 +213,23 @@ const PropertiesPage = () => {
                     disabled={loading}
                 >
                     {i}
+                </button>
+            );
+        }
+
+        // Add last page if needed
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                pages.push(<span key="dots2" className="pagination-dots">...</span>);
+            }
+            pages.push(
+                <button
+                    key={totalPages}
+                    onClick={() => handlePageChange(totalPages)}
+                    className="pagination-number"
+                    disabled={loading}
+                >
+                    {totalPages}
                 </button>
             );
         }
@@ -161,16 +249,43 @@ const PropertiesPage = () => {
         return pages;
     };
 
+    // Check if we have any active filters
+    const hasActiveFilters = localFilters.city || localFilters.minPrice || localFilters.maxPrice || localFilters.propertyType;
+
     return (
         <div className="properties-page">
             <main className="properties-container">
                 {/* Page Header */}
                 <div className="page-header">
-                    <h1 className="page-title">Our Property Listings</h1>
+                    <h1 className="page-title">Property Listings</h1>
                     <p className="page-subtitle">
-                        Browse through our carefully curated selection of homes and find your perfect match.
-                        {totalProperties > 0 && ` (${totalProperties} properties)`}
+                        {hasActiveFilters ? (
+                            <>Search results based on your filters ({totalProperties || 0} properties)</>
+                        ) : (
+                            <>Browse through our carefully curated selection of homes ({totalProperties || 0} properties)</>
+                        )}
                     </p>
+                    
+                    {hasActiveFilters && (
+                        <div className="active-filters">
+                            <span className="active-filters-label">Active Filters:</span>
+                            {localFilters.city && (
+                                <span className="active-filter-tag">
+                                    City: {localFilters.city}
+                                </span>
+                            )}
+                            {(localFilters.minPrice || localFilters.maxPrice) && (
+                                <span className="active-filter-tag">
+                                    Price: {localFilters.minPrice ? `₹${(localFilters.minPrice/100000).toFixed(1)}L` : 'Any'} - {localFilters.maxPrice ? `₹${(localFilters.maxPrice/10000000).toFixed(1)}Cr` : 'Any'}
+                                </span>
+                            )}
+                            {localFilters.propertyType && (
+                                <span className="active-filter-tag">
+                                    Type: {localFilters.propertyType}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Advanced Filters */}
@@ -192,6 +307,63 @@ const PropertiesPage = () => {
                             />
                         </div>
 
+                        {/* Property Type Filter */}
+                        <div className="filter-group">
+                            <label className="filter-label">
+                                Property Type
+                            </label>
+                            <select 
+                                name="propertyType"
+                                value={localFilters.propertyType || ''}
+                                onChange={handleFilterChange}
+                                className="filter-select"
+                                disabled={loading}
+                            >
+                                <option value="">All Types</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="house">House</option>
+                                <option value="villa">Villa</option>
+                                <option value="plot">Plot/Land</option>
+                                <option value="commercial">Commercial</option>
+                            </select>
+                        </div>
+
+                        {/* Price Range */}
+                        <div className="filter-group">
+                            <label className="filter-label">
+                                Price Range
+                            </label>
+                            <div className="price-range">
+                                <select 
+                                    name="minPrice"
+                                    value={localFilters.minPrice || ''}
+                                    onChange={handleFilterChange}
+                                    className="price-select"
+                                    disabled={loading}
+                                >
+                                    <option value="">Min</option>
+                                    <option value="100000">₹10L</option>
+                                    <option value="3000000">₹30L</option>
+                                    <option value="5000000">₹50L</option>
+                                    <option value="10000000">₹1Cr</option>
+                                </select>
+                                <span className="price-separator">to</span>
+                                <select 
+                                    name="maxPrice"
+                                    value={localFilters.maxPrice || ''}
+                                    onChange={handleFilterChange}
+                                    className="price-select"
+                                    disabled={loading}
+                                >
+                                    <option value="">Max</option>
+                                    <option value="3000000">₹30L</option>
+                                    <option value="5000000">₹50L</option>
+                                    <option value="10000000">₹1Cr</option>
+                                    <option value="30000000">₹3Cr</option>
+                                </select>
+                            </div>
+                        </div>
+
                         {/* Sort By */}
                         <div className="filter-group">
                             <label className="filter-label">
@@ -211,50 +383,13 @@ const PropertiesPage = () => {
                             </select>
                         </div>
 
-                        {/* Price Range */}
-                        <div className="filter-group">
-                            <label className="filter-label">
-                                Price Range
-                            </label>
-                            <div className="price-range">
-                                <select 
-                                    name="minPrice"
-                                    value={localFilters.minPrice}
-                                    onChange={handleFilterChange}
-                                    className="price-select"
-                                    disabled={loading}
-                                >
-                                    <option value="">Min</option>
-                                    <option value="100000">₹10L</option>
-                                    <option value="3000000">₹30L</option>
-                                    <option value="5000000">₹50L</option>
-                                    <option value="10000000">₹1Cr</option>
-                                </select>
-                                <span className="price-separator">to</span>
-                                <select 
-                                    name="maxPrice"
-                                    value={localFilters.maxPrice}
-                                    onChange={handleFilterChange}
-                                    className="price-select"
-                                    disabled={loading}
-                                >
-                                    <option value="">Max</option>
-                                    <option value="3000000">₹30L</option>
-                                    <option value="5000000">₹50L</option>
-                                    <option value="10000000">₹1Cr</option>
-                                    <option value="30000000">₹3Cr</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Filter Buttons - Now in same row */}
+                        {/* Filter Buttons */}
                         <div className="filter-buttons-container">
                             <button 
                                 onClick={handleApplyFilters}
                                 className="apply-filters-button"
                                 disabled={loading}
                             >
-                                <i data-feather="filter"></i> 
                                 <span>{loading ? 'Applying...' : 'Apply Filters'}</span>
                             </button>
                             <button 
@@ -262,7 +397,6 @@ const PropertiesPage = () => {
                                 className="reset-filters-button"
                                 disabled={loading}
                             >
-                                <i data-feather="refresh-cw"></i>
                                 <span>Reset</span>
                             </button>
                         </div>
@@ -302,25 +436,47 @@ const PropertiesPage = () => {
                         </div>
                         <p>Loading properties...</p>
                     </div>
-                ) :
-                (
+                ) : (
                     <div className="properties-grid">
-                        {propertyData?.map(property => (
-                            property && property._id && (
-                                <PropertyCard
-                                    key={property._id}
-                                    id={property._id}
-                                    // image={property.images?.[0]?.url}
-                                    amount={formatPrice(property.price?.amount)}
-                                    address={`${property.propertyAddress?.streetAddress || ''}, ${property.propertyAddress?.city || ''}`}
-                                    beds="N/A" // Update if you have bedrooms in your data
-                                    baths="N/A" // Update if you have bathrooms in your data
-                                    sqft={property.dimensions?.plotArea?.value || property.dimensions?.builtUpArea?.value}
-                                    type="Property"
-                                    linkTo={`/properties/view/${property._id}`}
-                                />
-                            )
-                        ))}
+                        {propertyData && propertyData.length > 0 ? (
+                            propertyData.map(property => (
+                                property && property._id && (
+                                    <PropertyCard
+                                        key={property._id}
+                                        id={property._id}
+                                        image={property.images?.[0]?.url}
+                                        price={formatPrice(property.price?.amount)}
+                                        address={`${property.propertyAddress?.streetAddress || ''}, ${property.propertyAddress?.city || ''}`}
+                                        beds={property.features?.bedrooms || 'N/A'}
+                                        baths={property.features?.bathrooms || 'N/A'}
+                                        sqft={property.dimensions?.plotArea?.value || property.dimensions?.builtUpArea?.value}
+                                        type={property.features?.propertyType || 'Property'}
+                                        status={property.price?.priceType === 'sale' ? 'For Sale' : 'For Rent'}
+                                        linkTo={`/properties/view/${property._id}`}
+                                    />
+                                )
+                            ))
+                        ) : (
+                            <div className="no-properties-message">
+                                <i data-feather="home" className="no-properties-icon"></i>
+                                <h3>No Properties Found</h3>
+                                <p>
+                                    {hasActiveFilters 
+                                        ? 'No properties match your search criteria. Try adjusting your filters.'
+                                        : 'No properties available at the moment. Please check back later.'
+                                    }
+                                </p>
+                                {hasActiveFilters && (
+                                    <button 
+                                        onClick={handleResetFilters}
+                                        className="reset-filters-button"
+                                    >
+                                        <i data-feather="refresh-cw"></i>
+                                        Reset Filters
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 

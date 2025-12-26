@@ -18,7 +18,11 @@ import {
   FETCH_SAVED_PROPERTIES_SUCCESS,
   FETCH_SAVED_PROPERTIES_FAILURE,
   CLEAR_USER_PROPERTY_ERROR,
-  RESET_USER_PROPERTY_STATE
+  RESET_USER_PROPERTY_STATE,
+  CLIENT_CONTACT_REQUEST,
+  CLIENT_CONTACT_SUCCESS,
+  CLIENT_CONTACT_FAILURE,
+  CLIENT_CONTACT_RESET
 } from './actionTypes';
 
 // Fetch all properties for users (public access)
@@ -207,3 +211,34 @@ export const clearUserPropertyError = () => ({
 export const resetUserPropertyState = () => ({
   type: RESET_USER_PROPERTY_STATE
 });
+
+export const resetClientContact = () => ({
+  type: CLIENT_CONTACT_RESET,
+});
+
+export const submitClientContact = (contactData) => async (dispatch) => {
+  dispatch({ type: CLIENT_CONTACT_REQUEST });
+
+  try {
+    const response = await authApi.post('/client-contacts', contactData);
+
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      dispatch({
+        type: CLIENT_CONTACT_SUCCESS,
+        payload: data,
+      });
+    } else {
+      dispatch({
+        type: CLIENT_CONTACT_FAILURE,
+        payload: data.message || 'Failed to submit contact form',
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: CLIENT_CONTACT_FAILURE,
+      payload: error.message || 'Network error occurred',
+    });
+  }
+};
