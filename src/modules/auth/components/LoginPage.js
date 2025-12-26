@@ -103,7 +103,7 @@ const LoginPage = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.email ? 'input-error' : ''}`}
+                                    className={`form-input-login ${errors.email ? 'input-error' : ''}`}
                                     placeholder="your@email.com"
                                     autoComplete="email"
                                 />
@@ -128,7 +128,7 @@ const LoginPage = () => {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.password ? 'input-error' : ''}`}
+                                    className={`form-input-login ${errors.password ? 'input-error' : ''}`}
                                     placeholder="••••••••"
                                     autoComplete="current-password"
                                 />

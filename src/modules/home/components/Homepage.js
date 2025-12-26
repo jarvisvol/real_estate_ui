@@ -250,20 +250,20 @@ const HomePage = () => {
             <main className="home-container">
                 {/* Hero Section */}
                 <section className="hero-section">
-                    <div className="hero-overlay"></div>
-                    <div className="hero-background">
+                    <div className="hero-overlay-home"></div>
+                    <div className="hero-background-home">
                         <img
                             src="http://static.photos/estate/1200x630/1"
                             alt="Luxury Home"
-                            className="hero-image"
+                            className="hero-image-home"
                         />
                     </div>
-                    <div className="hero-content">
-                        <div className="hero-text">
-                            <h1 className="hero-title">
+                    <div className="hero-content-home">
+                        <div className="hero-text-home">
+                            <h1 className="hero-title-home">
                                 Find Your Perfect <span className="hero-highlight">Property</span> in India
                             </h1>
-                            <p className="hero-subtitle">
+                            <p className="hero-subtitle-home">
                                 Discover thousands of verified properties across India. Buy, rent, or sell with confidence.
                             </p>
                             <div className="hero-buttons">

@@ -232,7 +232,7 @@ const RegisterPage = () => {
                                     name="fullName"
                                     value={formData.fullName}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.fullName ? 'input-error' : ''}`}
+                                    className={`form-input-register ${errors.fullName ? 'input-error' : ''}`}
                                     placeholder="John Doe"
                                     autoComplete="name"
                                 />
@@ -257,7 +257,7 @@ const RegisterPage = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.email ? 'input-error' : ''}`}
+                                    className={`form-input-register ${errors.email ? 'input-error' : ''}`}
                                     placeholder="your@email.com"
                                     autoComplete="email"
                                 />
@@ -285,7 +285,7 @@ const RegisterPage = () => {
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.password ? 'input-error' : ''}`}
+                                    className={`form-input-register ${errors.password ? 'input-error' : ''}`}
                                     placeholder="••••••••"
                                     autoComplete="new-password"
                                 />
@@ -337,7 +337,7 @@ const RegisterPage = () => {
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
+                                    className={`form-input-register ${errors.confirmPassword ? 'input-error' : ''}`}
                                     placeholder="••••••••"
                                     autoComplete="new-password"
                                 />
