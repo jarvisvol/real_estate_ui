@@ -36,7 +36,10 @@ import {
   RESET_USER_STATE,
   ADD_USER_REQUEST,
   ADD_USER_SUCCESS,
-  ADD_USER_FAILURE
+  ADD_USER_FAILURE,
+  UPLOAD_PROPERTY_IMAGES_REQUEST,
+  UPLOAD_PROPERTY_IMAGES_SUCCESS,
+  UPLOAD_PROPERTY_IMAGES_FAILURE
 } from './adminActionTypes';
 
 
@@ -148,31 +151,210 @@ export const createProperty = (propertyData, images) => {
     dispatch({ type: CREATE_PROPERTY_REQUEST });
 
     try {
-      // Create FormData for file upload
-      const formData = new FormData();
+      // Step 1: Create property WITHOUT sending files
+      // Send the number of images to create presigned URLs for
+      const propertyPayload = {
+        ...propertyData,
+        imageCount: images.length // Tell backend how many images to expect
+      };
 
-      // Add property data as JSON string      
-      formData.append('property', JSON.stringify(propertyData));
+      const response = await authApi.post(`/admin/properties`, propertyPayload);
 
-      // Add images
-      images.forEach((image, index) => {
-        formData.append('images', image);
-      });
+      const { propertyId, presignedUrls, imageUrls } = response.data.data;
+      console.log("Server response:", response.data);
 
-      const response = await authApi.post(`/admin/properties`, formData, {
+      // Step 2: Upload all images using presigned URLs
+      if (presignedUrls && images && images.length > 0) {
+        const uploadResults = [];
+        const uploadedImages = [];
 
-      });
+        // Upload each image to its corresponding presigned URL
+        for (let i = 0; i < Math.min(images.length, presignedUrls.length); i++) {
+          const file = images[i];
+          const { url: presignedUrl, key } = presignedUrls[i];
+          const { url: publicUrl } = imageUrls[i];
+
+          try {
+            console.log(`Uploading image ${i + 1}:`, {
+              originalName: file.name,
+              key: key,
+              type: file.type,
+              size: file.size
+            });
+
+            // Get file extension from original file
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            // Determine content type based on file extension
+            let contentType = file.type;
+            if (!contentType) {
+              switch (fileExtension) {
+                case 'jpg':
+                case 'jpeg':
+                  contentType = 'image/jpeg';
+                  break;
+                case 'png':
+                  contentType = 'image/png';
+                  break;
+                case 'gif':
+                  contentType = 'image/gif';
+                  break;
+                case 'webp':
+                  contentType = 'image/webp';
+                  break;
+                default:
+                  contentType = 'image/jpeg';
+              }
+            }
+
+            // Upload to S3 using presigned URL
+            const uploadResponse = await fetch(presignedUrl, {
+              method: 'PUT',
+              body: file,
+              headers: {
+                'Content-Type': contentType,
+              },
+            });
+
+            if (!uploadResponse.ok) {
+              throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+            }
+
+            console.log(`Image ${i + 1} uploaded successfully`);
+
+            // Store successful upload
+            uploadResults.push({
+              success: true,
+              key: key,
+              url: publicUrl,
+              index: i
+            });
+
+            uploadedImages.push({
+              key: key,
+              url: publicUrl
+            });
+
+          } catch (uploadError) {
+            console.error(`Failed to upload image ${i + 1}:`, uploadError);
+            uploadResults.push({
+              success: false,
+              key: key,
+              error: uploadError.message,
+              index: i
+            });
+          }
+        }
+
+        // Step 3: Update property with uploaded image URLs
+        if (uploadedImages.length > 0) {
+          try {
+            // Update backend with the uploaded image URLs
+            await authApi.put(`/admin/properties/${propertyId}/images`, {
+              images: uploadedImages
+            });
+
+            console.log("Property updated with image URLs:", uploadedImages);
+
+          } catch (updateError) {
+            console.error("Failed to update property with image URLs:", updateError);
+            // Even if this fails, the property was created and images uploaded to S3
+          }
+        }
+
+        // Check if all uploads succeeded
+        const failedUploads = uploadResults.filter(result => !result.success);
+        if (failedUploads.length > 0) {
+          console.warn(`${failedUploads.length} image(s) failed to upload`);
+
+          // You might want to notify the user which images failed
+          // Return partial success
+          return {
+            success: true,
+            partial: true,
+            data: response.data,
+            propertyId,
+            uploadResults,
+            message: `Property created but ${failedUploads.length} image(s) failed to upload`
+          };
+        }
+      }
 
       dispatch({
         type: CREATE_PROPERTY_SUCCESS,
         payload: response.data
       });
 
-      return { success: true, data: response.data };
+      return {
+        success: true,
+        data: response.data,
+        propertyId
+      };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to create property';
       dispatch({
         type: CREATE_PROPERTY_FAILURE,
+        payload: errorMessage
+      });
+      return { success: false, error: errorMessage };
+    }
+  };
+};
+
+// Optional: Separate action for uploading images to existing property
+export const uploadPropertyImages = (propertyId, images) => {
+  return async (dispatch) => {
+    dispatch({ type: UPLOAD_PROPERTY_IMAGES_REQUEST });
+
+    try {
+      // First, get presigned URLs from backend
+      const presignedResponse = await authApi.post(`/admin/properties/${propertyId}/presigned-urls`, {
+        count: images.length
+      });
+
+      const { presignedUrls, imageUrls } = presignedResponse.data.data;
+
+      // Upload images
+      const uploadedImages = [];
+
+      for (let i = 0; i < Math.min(images.length, presignedUrls.length); i++) {
+        const file = images[i];
+        const { url: presignedUrl, key } = presignedUrls[i];
+        const { url: publicUrl } = imageUrls[i];
+
+        // Upload to S3
+        await fetch(presignedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type || 'image/jpeg',
+          },
+        });
+
+        uploadedImages.push({
+          key: key,
+          url: publicUrl
+        });
+      }
+
+      // Update property with new image URLs
+      const updateResponse = await authApi.put(`/admin/properties/${propertyId}/images`, {
+        images: uploadedImages
+      });
+
+      dispatch({
+        type: UPLOAD_PROPERTY_IMAGES_SUCCESS,
+        payload: updateResponse.data
+      });
+
+      return {
+        success: true,
+        data: updateResponse.data
+      };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to upload images';
+      dispatch({
+        type: UPLOAD_PROPERTY_IMAGES_FAILURE,
         payload: errorMessage
       });
       return { success: false, error: errorMessage };
@@ -190,9 +372,9 @@ export const updateProperty = (propertyId, propertyData, images = []) => {
       formData.append('property', JSON.stringify(propertyData));
 
       // Add new images if any
-      images.forEach((image, index) => {
-        formData.append('images', image);
-      });
+      // images.forEach((image, index) => {
+      //   formData.append('images', image);
+      // });
 
       const response = await authApi.put(`/admin/properties/${propertyId}`, formData, {
 
