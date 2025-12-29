@@ -58,3 +58,67 @@
     z-index: 5;
   }
 }
+
+.admin-layout-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+
+.admin-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .admin-sidebar.mobile-open {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .mobile-menu-button {
+    display: block;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .mobile-close {
+    display: block;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+  .mobile-menu-button,
+  .mobile-close {
+    display: none;
+  }
+}

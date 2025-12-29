@@ -5,23 +5,22 @@ import AdminNavbar from './AdminNavbar';
 import '../css/AdminLayout.css';
 
 const AdminLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setMobileOpen(!mobileOpen);
   };
 
   return (
-    <div className={`admin-layout-container ${sidebarOpen ? 'sidebar-open' : ''}`}>
+    <div className={`admin-layout-container ${mobileOpen ? 'sidebar-open' : ''}`}>
       <AdminSidebar 
-        sidebarOpen={sidebarOpen}
-        toggleSidebar={toggleSidebar}
+        mobileOpen={mobileOpen}
+        onMobileToggle={toggleSidebar}
       />
       
       <div className="admin-main-content">
         <AdminNavbar 
-          sidebarOpen={sidebarOpen}
-          toggleSidebar={toggleSidebar}
+          onMenuToggle={toggleSidebar}
         />
         
         <main className="admin-content-area">

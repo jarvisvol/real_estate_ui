@@ -571,3 +571,62 @@ button:focus-visible {
 .nav-item.active .nav-active-indicator {
     animation: slideIn 0.2s ease-out;
 }
+
+/* Mobile overlay */
+.sidebar-overlay {
+  display: none;
+}
+
+/* Mobile close button */
+.mobile-close {
+  display: none;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.mobile-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .admin-sidebar.mobile-open {
+    left: 0;
+  }
+
+  .mobile-close {
+    display: block;
+  }
+
+  .collapse-toggle {
+    display: none;
+  }
+}

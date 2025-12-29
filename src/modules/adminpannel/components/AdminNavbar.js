@@ -11,19 +11,14 @@ const AdminNavbar = ({
         avatar: 'http://static.photos/people/100x100/42',
         email: 'admin@homehaven.com'
     },
-    notificationCount = 5,
-    onSearch = (searchTerm) => {},
     onNotificationClick = () => {},
     onLogout = () => {},
     onProfileClick = () => {},
     onSettingsClick = () => {},
     showNotifications = true,
-    showSearch = true,
     onMenuToggle = () => {} // For mobile menu toggle
 }) => {
     const navigate = useNavigate();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [notifications, setNotifications] = useState(notificationCount);
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
     const [unreadNotifications, setUnreadNotifications] = useState([
@@ -31,7 +26,6 @@ const AdminNavbar = ({
         { id: 2, title: 'User Registration', time: '1 hour ago', read: false },
         { id: 3, title: 'Payment Received', time: '2 hours ago', read: true },
     ]);
-    const searchInputRef = useRef(null);
     const dropdownRef = useRef(null);
     const notificationRef = useRef(null);
 
@@ -67,44 +61,6 @@ const AdminNavbar = ({
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-
-    const sectionTitles = {
-        'dashboard': 'Dashboard Overview',
-        'properties': 'Property Management',
-        'listings': 'Listing Management',
-        'users': 'User Management',
-        'agents': 'Agent Management',
-        'roles': 'Role & Permissions',
-        'settings': 'System Settings',
-        'analytics': 'Analytics & Reports',
-        'categories': 'Category Management',
-        'media': 'Media Library',
-        'reports': 'Reports',
-        'logs': 'Activity Logs',
-        'profile': 'Admin Profile'
-    };
-
-    const handleSearch = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
-        if (onSearch) {
-            onSearch(value);
-        }
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter' && onSearch) {
-            onSearch(searchTerm);
-            searchInputRef.current?.blur();
-        }
-    };
-
-    const handleClearSearch = () => {
-        setSearchTerm('');
-        if (onSearch) {
-            onSearch('');
-        }
-    };
 
     const handleNotificationClick = () => {
         if (onNotificationClick) {
