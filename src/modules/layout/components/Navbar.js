@@ -73,14 +73,13 @@ const Navbar = () => {
 
     return (
         <>
-            <header className={`navbar gradient-bg text-white sticky top-0 z-50 transition-all duration-300 ${
-                scrolled ? 'shadow-xl py-2' : 'shadow-lg py-4'
-            }`}>
+            <header className={`navbar gradient-bg text-white sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'shadow-xl py-2' : 'shadow-lg py-4'
+                }`}>
                 <div className="container mx-auto px-4">
                     <div className="flex justify-between items-center">
                         {/* Logo Section */}
                         <Link to="/" className="flex items-center space-x-3 group">
-                             <i data-feather="home"></i>
+                            <i data-feather="home"></i>
                             <div className="flex flex-col">
                                 <span className="text-2xl font-bold logo-home tracking-tight">Balaji Housings</span>
                             </div>
@@ -92,11 +91,10 @@ const Navbar = () => {
                                 <Link
                                     key={link.path}
                                     to={link.path}
-                                    className={`relative px-6 py-3 rounded-lg transition-all duration-300 font-medium group ${
-                                        isActive(link.path) 
-                                            ? 'text-white' 
+                                    className={`relative px-6 py-3 rounded-lg transition-all duration-300 font-medium group ${isActive(link.path)
+                                            ? 'text-white'
                                             : 'text-white/90 hover:bg-white/10 hover:text-white'
-                                    }`}
+                                        }`}
                                 >
                                     <i className={`${link.icon} mr-2`}></i>
                                     {link.label}
@@ -137,9 +135,8 @@ const Navbar = () => {
                                                     <button
                                                         key={index}
                                                         onClick={item.action}
-                                                        className={`w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-200 ${
-                                                            item.isLogout ? 'border-t border-gray-100 hover:text-red-600' : ''
-                                                        }`}
+                                                        className={`w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-200 ${item.isLogout ? 'border-t border-gray-100 hover:text-red-600' : ''
+                                                            }`}
                                                     >
                                                         <i className={`${item.icon} w-5 ${item.isLogout ? 'text-red-500' : 'text-gray-600'}`}></i>
                                                         <span className={`${item.isLogout ? 'font-medium' : ''}`}>{item.label}</span>
@@ -159,7 +156,7 @@ const Navbar = () => {
                                     </Link>
                                     <Link
                                         to="/register"
-                                        className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+                                        className="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-900 hover:from-blue-600 hover:to-blue-1000 transition-all duration-300 shadow-lg hover:shadow-xl"
                                     >
                                         Get Started
                                     </Link>
@@ -175,7 +172,20 @@ const Navbar = () => {
                                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                                         className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
                                     >
-                                        <i className="fas fa-user text-white"></i>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
                                     </button>
                                     {isUserMenuOpen && (
                                         <div className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-lg shadow-xl border border-gray-700 overflow-hidden">
@@ -187,9 +197,8 @@ const Navbar = () => {
                                                 <button
                                                     key={index}
                                                     onClick={item.action}
-                                                    className={`w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-gray-800 ${
-                                                        item.isLogout ? 'border-t border-gray-700 hover:text-red-400' : ''
-                                                    }`}
+                                                    className={`w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-gray-800 ${item.isLogout ? 'border-t border-gray-700 hover:text-red-400' : ''
+                                                        }`}
                                                 >
                                                     <i className={`${item.icon} w-5 ${item.isLogout ? 'text-red-400' : 'text-gray-300'}`}></i>
                                                     <span>{item.label}</span>
@@ -199,18 +208,18 @@ const Navbar = () => {
                                     )}
                                 </div>
                             )}
-                            <button
+                            {/* <button
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors duration-300"
                             >
                                 <i className={`fas fa-${isMobileMenuOpen ? 'times' : 'bars'} text-xl`}></i>
-                            </button>
+                            </button> */}
                         </div>
                     </div>
 
                     {/* Mobile Fullscreen Menu */}
                     {isMobileMenuOpen && (
-                        <div 
+                        <div
                             ref={mobileMenuRef}
                             className="lg:hidden fixed inset-0 top-20 bg-gradient-to-b from-gray-900 to-gray-800 z-40 overflow-y-auto animate-slideIn"
                         >
@@ -240,11 +249,10 @@ const Navbar = () => {
                                             key={link.path}
                                             to={link.path}
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className={`flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-300 ${
-                                                isActive(link.path)
-                                                    ? 'bg-gradient-to-r from-blue-500/20 to-green-500/20 border-l-4 border-blue-400'
+                                            className={`flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-300 ${isActive(link.path)
+                                                    ? 'bg-gradient-to-r from-blue-500/20 to-blue-800/20 border-l-4 border-blue-400'
                                                     : 'hover:bg-white/10'
-                                            }`}
+                                                }`}
                                         >
                                             <i className={`${link.icon} text-xl w-8`}></i>
                                             <span className="text-lg font-medium">{link.label}</span>
@@ -285,9 +293,8 @@ const Navbar = () => {
                                                     item.action();
                                                     setIsMobileMenuOpen(false);
                                                 }}
-                                                className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-300 hover:bg-white/10 ${
-                                                    item.isLogout ? 'border-t border-white/10 mt-4 pt-4 hover:text-red-400' : ''
-                                                }`}
+                                                className={`w-full flex items-center space-x-4 px-6 py-4 rounded-xl transition-all duration-300 hover:bg-white/10 ${item.isLogout ? 'border-t border-white/10 mt-4 pt-4 hover:text-red-400' : ''
+                                                    }`}
                                             >
                                                 <i className={`${item.icon} text-xl w-8 ${item.isLogout ? 'text-red-400' : 'text-white/70'}`}></i>
                                                 <span className="text-lg font-medium">{item.label}</span>
@@ -308,11 +315,10 @@ const Navbar = () => {
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all duration-300 ${
-                                isActive(link.path)
-                                    ? 'text-white bg-gradient-to-r from-blue-500/30 to-green-500/30'
+                            className={`flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all duration-300 ${isActive(link.path)
+                                    ? 'text-white bg-gradient-to-r from-blue-500/30 to-blue-900/30'
                                     : 'text-gray-300 hover:text-white'
-                            }`}
+                                }`}
                         >
                             <i className={`${link.icon} text-lg mb-1`}></i>
                             <span className="text-xs font-medium">{link.label}</span>
@@ -320,11 +326,10 @@ const Navbar = () => {
                     ))}
                     <Link
                         to={user ? '/profile' : '/login'}
-                        className={`flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all duration-300 ${
-                            isActive(user ? '/profile' : '/login')
-                                ? 'text-white bg-gradient-to-r from-blue-500/30 to-green-500/30'
+                        className={`flex flex-col items-center justify-center py-2 px-4 rounded-xl transition-all duration-300 ${isActive(user ? '/profile' : '/login')
+                                ? 'text-white bg-gradient-to-r from-blue-500/30 to-blue-900/30'
                                 : 'text-gray-300 hover:text-white'
-                        }`}
+                            }`}
                     >
                         <i className={`fas fa-${user ? 'user' : 'sign-in-alt'} text-lg mb-1`}></i>
                         <span className="text-xs font-medium">{user ? 'Profile' : 'Login'}</span>

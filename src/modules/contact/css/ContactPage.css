@@ -246,13 +246,13 @@
 }
 
 .tab-button:hover {
-  border-color: #4CAF50;
-  color: #4CAF50;
+  border-color: #3B82F6;
+  color: #3B82F6;
 }
 
 .tab-button.active {
-  border-color: #4CAF50;
-  background: #4CAF50;
+  border-color: #3B82F6;
+  background: #3B82F6;
   color: white;
 }
 
@@ -393,7 +393,6 @@ textarea.form-input {
 .submit-button {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -474,7 +473,6 @@ textarea.form-input {
 .info-icon {
   width: 40px;
   height: 40px;
-  background: #4CAF50;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -507,13 +505,12 @@ textarea.form-input {
 }
 
 .info-value.link {
-  color: #4CAF50;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .info-value.link:hover {
-  color: #45a049;
+  color: #3B82F6;
   text-decoration: underline;
 }
 

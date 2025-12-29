@@ -146,43 +146,18 @@ class AppRouter extends Component {
           
           {/* Regular User Routes with Layout */}
           <Route path="/" element={<Layout />}>
-            <Route 
-              index 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <HomePage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/about" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <About />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/contact" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <Contact />
-                </ProtectedRoute>
-              } 
-            />
+            {/* Public Pages - No authentication required */}
+            <Route index element={<HomePage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/properties" element={<Properties />} />
+            
+            {/* Protected Pages - Authentication still required */}
             <Route 
               path="/properties/view/:id" 
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
                   <PropertyViewPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/properties" 
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} isLoading={isLoading}>
-                  <Properties />
                 </ProtectedRoute>
               } 
             />

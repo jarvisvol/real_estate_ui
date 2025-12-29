@@ -188,18 +188,6 @@ const ContactPage = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="cta-buttons">
-                            <button 
-                                className="cta-button primary"
-                                onClick={() => {
-                                    handleTabChange('list-property');
-                                    document.getElementById('contact-form').scrollIntoView({ behavior: 'smooth' });
-                                }}
-                            >
-                                <i data-feather="home" className="button-icon"></i>
-                                List Your Property
-                            </button>
-                        </div>
                     </div>
                 </section>
 
