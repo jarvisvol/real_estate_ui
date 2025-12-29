@@ -13,13 +13,13 @@
 }
 
 /* Logo Styles */
-.logo {
+.logo-home {
     color: white;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.logo:hover {
+.logo-home:hover {
     color: #93c5fd;
 }
 
@@ -136,7 +136,7 @@
         padding-right: 1rem;
     }
     
-    .logo {
+    .logo-home {
         font-size: 1.25rem;
     }
     
@@ -150,7 +150,7 @@
         padding: 0.5rem 0.75rem;
     }
     
-    .logo {
+    .logo-home {
         font-size: 1.125rem;
     }
 }
@@ -194,4 +194,93 @@
 
 .space-x-8 > * + * {
     margin-left: 2rem;
+}
+
+/* Navbar Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Logo Styling */
+.logo-home {
+    background: linear-gradient(45deg, #ffffff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Smooth Transitions */
+.nav-link {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover Effects */
+.nav-link:hover {
+    transform: translateY(-2px);
+}
+
+/* Glass Morphism */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Menu Backdrop */
+.mobile-menu-backdrop {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Active Link Indicator */
+.active-link-indicator {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Pulse Animation for Notifications */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.5rem 0;
+    }
 }
