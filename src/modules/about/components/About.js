@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import feather from 'feather-icons';
-import '../../About/css/About.css';
+import '../../about/css/About.css';
 
 const About = () => {
     const [isVisible, setIsVisible] = useState({});

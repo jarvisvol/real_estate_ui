@@ -9,7 +9,7 @@ import Layout from './modules/layout/Layout';
 import AdminLayout from './modules/adminpannel/components/AdminLayout';
 import { verifyToken } from './modules/auth/store/authActions'
 import Properties from './modules/Properties/components/Properties';
-import About from './modules/About/components/About';
+import About from './modules/about/components/About';
 import Contact from './modules/contact/components/Contact';
 import PropertyViewPage from './modules/Properties/components/PropertyViewPage';
 import AdminPanel from './modules/adminpannel/components/AdminPannel';
