@@ -11,12 +11,12 @@ const HomePage = () => {
     const navigate = useNavigate();
 
     // Get properties from Redux store
-    const { 
-        properties, 
-        loading, 
-        totalProperties, 
-        status, 
-        error, 
+    const {
+        properties,
+        loading,
+        totalProperties,
+        status,
+        error,
     } = useSelector(state => state.property);
 
     const [searchFilters, setSearchFilters] = useState({
@@ -57,15 +57,15 @@ const HomePage = () => {
                 message: ''
             });
             setFormErrors({});
-            
+
             // Auto-hide success message after 5 seconds
             const timer = setTimeout(() => {
                 setContactSubmitSuccess(false);
             }, 5000);
-            
+
             return () => clearTimeout(timer);
         }
-        
+
         // Handle contact form error
         if (status === 'CLIENT_CONTACT_FAILURE' && error) {
             setFormErrors(prev => ({
@@ -114,7 +114,7 @@ const HomePage = () => {
                 [name]: ''
             }));
         }
-        
+
         // Clear submit error if it exists
         if (formErrors.submit) {
             setFormErrors(prev => ({
@@ -162,7 +162,7 @@ const HomePage = () => {
         }
         setFormErrors({});
         setContactSubmitSuccess(false);
-        
+
         // Dispatch the contact action
         dispatch(submitClientContact(contactForm));
     };
@@ -233,6 +233,12 @@ const HomePage = () => {
             icon: 'shield',
             title: 'Secure Transactions',
             description: 'Safe and secure property transactions with legal support and documentation.'
+        },
+        {
+            id: 4,
+            icon: 'headphones',
+            title: '24/7 Support',
+            description: 'Round-the-clock customer support to assist you at every step of your property journey.'
         }
     ];
 

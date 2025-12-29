@@ -257,7 +257,6 @@ const PropertiesPage = () => {
             <main className="properties-container">
                 {/* Page Header */}
                 <div className="page-header">
-                    <h1 className="page-title">Property Listings</h1>
                     <p className="page-subtitle">
                         {hasActiveFilters ? (
                             <>Search results based on your filters ({totalProperties || 0} properties)</>

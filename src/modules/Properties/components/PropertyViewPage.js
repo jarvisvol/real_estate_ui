@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserPropertyDetails } from '../store/actions'; // Make sure this action exists
+import { fetchUserPropertyDetails } from '../store/actions';
 import '../css/PropertyViewPage.css';
 
 const PropertyViewPage = () => {
@@ -9,16 +9,18 @@ const PropertyViewPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // Get property data from Redux store - UPDATED selector
+    // Get property data from Redux store
     const { propertyDetails, detailsLoading, detailsError } = useSelector((state) => state.property);
-    // Choose the correct slice name based on your Redux store structure
 
     const [saved, setSaved] = useState(false);
     const [property, setProperty] = useState(null);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+    const [showImageModal, setShowImageModal] = useState(false);
+    const [isAutoSlide, setIsAutoSlide] = useState(true);
+    const [autoSlideInterval, setAutoSlideInterval] = useState(null);
 
     useEffect(() => {
         if (id) {
-            // Fetch property data from Redux action
             dispatch(fetchUserPropertyDetails(id));
         }
 
@@ -33,6 +35,23 @@ const PropertyViewPage = () => {
             setProperty(propertyDetails);
         }
     }, [propertyDetails, id]);
+
+    // Auto slide functionality
+    useEffect(() => {
+        if (isAutoSlide && property?.images && property.images.length > 1) {
+            const interval = setInterval(() => {
+                setSelectedImageIndex(prev => 
+                    prev === property.images.length - 1 ? 0 : prev + 1
+                );
+            }, 10000); // Change image every 10 seconds
+            
+            setAutoSlideInterval(interval);
+            
+            return () => {
+                if (interval) clearInterval(interval);
+            };
+        }
+    }, [isAutoSlide, property?.images]);
 
     const handleSaveProperty = () => {
         const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
@@ -62,8 +81,50 @@ const PropertyViewPage = () => {
     };
 
     const handleScheduleTour = () => {
-        // Navigate to schedule tour page or open modal
         navigate(`/schedule-tour/${id}`);
+    };
+
+    const handleImageClick = (index) => {
+        setSelectedImageIndex(index);
+        setShowImageModal(true);
+    };
+
+    const handlePrevImage = () => {
+        if (property?.images) {
+            setSelectedImageIndex(prev => 
+                prev === 0 ? property.images.length - 1 : prev - 1
+            );
+        }
+        // Reset auto slide timer
+        resetAutoSlide();
+    };
+
+    const handleNextImage = () => {
+        if (property?.images) {
+            setSelectedImageIndex(prev => 
+                prev === property.images.length - 1 ? 0 : prev + 1
+            );
+        }
+        // Reset auto slide timer
+        resetAutoSlide();
+    };
+
+    const resetAutoSlide = () => {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+        }
+        if (isAutoSlide && property?.images && property.images.length > 1) {
+            const interval = setInterval(() => {
+                setSelectedImageIndex(prev => 
+                    prev === property.images.length - 1 ? 0 : prev + 1
+                );
+            }, 10000);
+            setAutoSlideInterval(interval);
+        }
+    };
+
+    const toggleAutoSlide = () => {
+        setIsAutoSlide(!isAutoSlide);
     };
 
     if (detailsLoading) {
@@ -145,6 +206,61 @@ const PropertyViewPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* Image Modal */}
+            {showImageModal && property?.images && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <button
+                            onClick={() => setShowImageModal(false)}
+                            className="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-70 p-2 rounded-full z-10"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <button
+                            onClick={handlePrevImage}
+                            className="absolute left-4 text-white bg-black bg-opacity-50 hover:bg-opacity-70 p-2 rounded-full z-10"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <div className="relative max-w-4xl max-h-[90vh]">
+                            <img
+                                src={property.images[selectedImageIndex]?.url}
+                                alt={`Property ${selectedImageIndex + 1}`}
+                                className="w-full h-full object-contain"
+                            />
+                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-2 rounded-lg">
+                                {selectedImageIndex + 1} / {property.images.length}
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleNextImage}
+                            className="absolute right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-70 p-2 rounded-full z-10"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                            {property.images.map((_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setSelectedImageIndex(index)}
+                                    className={`w-2 h-2 rounded-full ${index === selectedImageIndex ? 'bg-white' : 'bg-gray-400'}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Breadcrumb Navigation */}
             <nav className="bg-white border-b border-gray-200">
                 <div className="container mx-auto px-4 py-3">
@@ -229,40 +345,140 @@ const PropertyViewPage = () => {
                     </div>
                 </div>
 
-                {/* Property Images Gallery */}
+                {/* Property Images Gallery with Slider */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div className="h-64 md:h-96 bg-gray-100 flex items-center justify-center">
-                                {property?.images?.[0]?.url ? (
-                                    <img
-                                        src={property.images[0].url}
-                                        alt="Property"
-                                        className="w-full h-full object-cover"
-                                    />
+                            {/* Image Slider */}
+                            <div className="relative h-64 md:h-96 bg-gray-100 overflow-hidden">
+                                {property?.images && property.images.length > 0 ? (
+                                    <>
+                                        {/* Main Slider Image */}
+                                        <div 
+                                            className="w-full h-full flex transition-transform duration-500 ease-in-out cursor-pointer"
+                                            style={{ transform: `translateX(-${selectedImageIndex * 100}%)` }}
+                                            onClick={() => handleImageClick(selectedImageIndex)}
+                                        >
+                                            {property.images.map((image, index) => (
+                                                <div 
+                                                    key={index} 
+                                                    className="w-full h-full flex-shrink-0 relative group"
+                                                >
+                                                    <img
+                                                        src={image.url}
+                                                        alt={`Property ${index + 1}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg">
+                                                            Click to view fullscreen
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Navigation Buttons */}
+                                        {property.images.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={handlePrevImage}
+                                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full z-10"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                <button
+                                                    onClick={handleNextImage}
+                                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full z-10"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </button>
+                                                
+                                                {/* Slider Controls */}
+                                                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center space-x-3 z-10">
+                                                    {/* Slide Indicators */}
+                                                    <div className="flex space-x-2">
+                                                        {property.images.map((_, index) => (
+                                                            <button
+                                                                key={index}
+                                                                onClick={() => setSelectedImageIndex(index)}
+                                                                className={`w-2 h-2 rounded-full transition-all ${index === selectedImageIndex ? 'bg-white w-4' : 'bg-white bg-opacity-50'}`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    
+                                                    {/* Auto Slide Toggle */}
+                                                    <button
+                                                        onClick={toggleAutoSlide}
+                                                        className="ml-2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-1 rounded"
+                                                        title={isAutoSlide ? "Pause slideshow" : "Play slideshow"}
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            {isAutoSlide ? (
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            ) : (
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                            )}
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                
+                                                {/* Image Counter */}
+                                                <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg text-sm z-10">
+                                                    {selectedImageIndex + 1} / {property.images.length}
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
                                 ) : (
-                                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
                                 )}
                             </div>
 
                             {/* Thumbnail Gallery */}
                             {property?.images && property.images.length > 1 && (
                                 <div className="p-4 border-t border-gray-200">
-                                    <div className="flex space-x-2 overflow-x-auto">
+                                    <div className="flex space-x-2 overflow-x-auto pb-2">
                                         {property.images.map((image, index) => (
-                                            <div key={index} className="flex-shrink-0 w-20 h-20 border rounded-lg overflow-hidden">
+                                            <div 
+                                                key={index} 
+                                                className={`flex-shrink-0 w-20 h-20 border rounded-lg overflow-hidden cursor-pointer transition-all ${index === selectedImageIndex ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-500'}`}
+                                                onClick={() => setSelectedImageIndex(index)}
+                                            >
                                                 <img
                                                     src={image.url}
                                                     alt={`Thumbnail ${index + 1}`}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-full object-cover hover:scale-105 transition-transform"
                                                 />
                                             </div>
                                         ))}
                                     </div>
+                                    <p className="text-sm text-gray-500 mt-2 text-center">
+                                        Click on any image to view fullscreen • {isAutoSlide ? "Auto-slide is ON" : "Auto-slide is OFF"}
+                                    </p>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Property Description */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-4">Property Description</h2>
+                            <div className="prose max-w-none">
+                                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                    {property?.description || `This property is located in ${property?.propertyAddress?.city}, ${property?.propertyAddress?.state}. 
+                                    With a plot area of ${property?.dimensions?.plotArea?.value || '0'} ${property?.dimensions?.plotArea?.unit || 'sqft'}, 
+                                    it offers great potential for development or residential use.`}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
@@ -388,77 +604,6 @@ const PropertyViewPage = () => {
                                     Schedule Tour
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Property Description */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Property Description</h2>
-                    <div className="prose max-w-none">
-                        <p className="text-gray-700">
-                            {property?.description || `This property is located in ${property?.propertyAddress?.city}, ${property?.propertyAddress?.state}. 
-                            With a plot area of ${property?.dimensions?.plotArea?.value || '0'} ${property?.dimensions?.plotArea?.unit || 'sqft'}, 
-                            it offers great potential for development or residential use.`}
-                        </p>
-                    </div>
-                </div>
-
-                <div className="distance-info">
-                    <div className="distance-item">
-                        <div className="distance-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-6-3-6H5C3.3 4 2 5.3 2 7v10c0 .6.4 1 1 1h2"></path>
-                                <circle cx="7" cy="17" r="2"></circle>
-                                <path d="M9 17h6"></path>
-                                <circle cx="17" cy="17" r="2"></circle>
-                            </svg>
-                        </div>
-                        <div className="distance-text">
-                            <div className="distance-label">Bus Stand</div>
-                            <div className="distance-value">{9}</div>
-                        </div>
-                    </div>
-
-                    <div className="distance-item">
-                        <div className="distance-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                                <path d="M2 8h20"></path>
-                                <path d="M6 4v4"></path>
-                                <path d="M18 4v4"></path>
-                            </svg>
-                        </div>
-                        <div className="distance-text">
-                            <div className="distance-label">Railway Station</div>
-                            <div className="distance-value">{9}</div>
-                        </div>
-                    </div>
-
-                    <div className="distance-item">
-                        <div className="distance-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </div>
-                        <div className="distance-text">
-                            <div className="distance-label">Airport</div>
-                            <div className="distance-value">{89}</div>
-                        </div>
-                    </div>
-
-                    <div className="distance-item">
-                        <div className="distance-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                        </div>
-                        <div className="distance-text">
-                            <div className="distance-label">Shopping Mall</div>
-                            <div className="distance-value">{90}</div>
                         </div>
                     </div>
                 </div>
