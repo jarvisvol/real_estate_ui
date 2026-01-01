@@ -5,7 +5,7 @@ import { logoutUser } from '../../auth/store/authActions';
 
 const AdminSidebar = ({
     onSectionChange = () => { },
-    onLogout = () => { },
+    // onLogout = () => { },
     collapsed = false,
     version = '1.0.0',
     user = {

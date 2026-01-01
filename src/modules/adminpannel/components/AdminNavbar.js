@@ -4,7 +4,7 @@ import '../css/AdminNavbar.css'; // Assuming you have a CSS file for styling
 import feather from 'feather-icons';
 
 const AdminNavbar = ({ 
-    currentSection = 'dashboard',
+    // currentSection = 'dashboard',
     user = {
         name: 'Admin User',
         role: 'Super Admin',
