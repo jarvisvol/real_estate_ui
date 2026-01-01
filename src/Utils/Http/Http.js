@@ -1,6 +1,24 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+// Determine base URL based on environment
+const getBaseURL = () => {
+  const hostname = window.location.hostname;
+  
+  // Production
+  if (hostname === 'ballajiproperty.in' || hostname === 'www.ballajiproperty.in') {
+    return 'http://ballajiproperty.in/';
+  }
+  
+  // Test/Staging environment (add your test domain here)
+  if (hostname === 'test.ballajiproperty.in' || hostname === 'staging.ballajiproperty.in') {
+    return 'http://test.ballajiproperty.in/';
+  }
+  
+  // Local development
+  return 'http://localhost:4000/api/';
+};
+
+const API_BASE_URL = getBaseURL();
 
 // Create axios instance
 const api = axios.create({
