@@ -6,12 +6,12 @@ const getBaseURL = () => {
   
   // Production
   if (hostname === 'ballajiproperty.in' || hostname === 'www.ballajiproperty.in') {
-    return 'http://ballajiproperty.in/';
+    return 'http://ballajiproperty.in/api/';
   }
   
   // Test/Staging environment (add your test domain here)
   if (hostname === 'test.ballajiproperty.in' || hostname === 'staging.ballajiproperty.in') {
-    return 'http://test.ballajiproperty.in/';
+    return 'http://test.ballajiproperty.in/api/';
   }
   
   // Local development
